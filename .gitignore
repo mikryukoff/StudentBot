@@ -1,0 +1,7 @@
+*.json
+config.py
+__pycache__
+.mypy_cache
+TelegramBot
+parser_config.py
+bot_config.py
