@@ -1,5 +1,7 @@
 from bot_config import BOT_TOKEN
 from StudentAccount import StudentAccount
+from exceptions import IncorrectDataException
+
 import keyboards as kb
 
 from aiogram import Bot, Dispatcher, F
@@ -75,9 +77,13 @@ async def password(message: Message):
 
     await message.answer("Подключаюсь к личному кабинету...")
 
-    users_chat_id[message.chat.id] = (login, await StudentAccount(login, password).driver)
-
-    await message.answer("Подключение прошло успешно!", reply_markup=kb.StartMenu)
+    try:
+        users_chat_id[message.chat.id] = (login, await StudentAccount(login, password).driver)
+    except IncorrectDataException:
+        await message.answer("Неправильно введены данные, попробуйте ещё раз...", reply_markup=kb.LogInMenu)
+        users_chat_id[message.chat.id] = None
+    else:
+        await message.answer("Подключение прошло успешно!", reply_markup=kb.StartMenu)
 
 
 if __name__ == "__main__":

@@ -1,9 +1,9 @@
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 
-class NoSuchStudentFoundException(TimeoutException):
+class IncorrectDataException(NoSuchElementException):
     def __str__(self):
-        return f"Student: {self.msg} not found."
+        return "Incorrect data, pls try again..."
 
 
 class AlreadyAuthorisedException(TimeoutException):

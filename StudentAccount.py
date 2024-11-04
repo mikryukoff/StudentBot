@@ -15,8 +15,8 @@ from async_property import async_property
 
 from fake_useragent import UserAgent
 
-from exceptions import NoSuchStudentFoundException, AlreadyAuthorisedException
-from selenium.common.exceptions import SessionNotCreatedException, TimeoutException
+from exceptions import IncorrectDataException, AlreadyAuthorisedException
+from selenium.common.exceptions import SessionNotCreatedException, TimeoutException, NoSuchElementException
 
 
 @dataclass
@@ -50,11 +50,11 @@ class StudentAccount:
         # ЗАПОЛНИТЬ
         options.add_argument("--disable-blink-features=AutomationControlled")
 
-        # # Запуск браузера без графической оболочки.
-        # options.add_argument("--headless")
+        # Запуск браузера без графической оболочки.
+        options.add_argument("--headless")
 
-        # # Отключение использования GPU.
-        # options.add_argument("--disable-gpu")
+        # Отключение использования GPU.
+        options.add_argument("--disable-gpu")
 
         options.add_argument("--no-sandbox")
 
@@ -93,6 +93,15 @@ class StudentAccount:
             self.browser.find_element(By.ID, "submitButton").click()
         except TimeoutException:
             raise AlreadyAuthorisedException
+
+        try:
+            self.browser.find_element(By.ID, "errorText")
+        except NoSuchElementException:
+            pass
+        else:
+            self.browser.close()
+            self.browser.quit()
+            raise IncorrectDataException
 
     @property
     def schedule(self):
