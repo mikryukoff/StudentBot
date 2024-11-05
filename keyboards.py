@@ -16,7 +16,7 @@ StartMenu = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="📅 Расписание"),
-            KeyboardButton(text="Баллы БРС")
+            KeyboardButton(text="📉 Баллы БРС")
         ]
     ],
     resize_keyboard=True,

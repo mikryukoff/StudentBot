@@ -39,7 +39,7 @@ class ScheduleParser:
         await self.week_schedule(next_week=True)
 
     @async_property
-    async def week_schedule(self, next_week=False):
+    async def week_schedule(self, next_week: bool = False) -> list:
         '''
         BLANK
         '''

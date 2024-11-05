@@ -1,5 +1,5 @@
 from bot_config import BOT_TOKEN
-from StudentAccount import StudentAccount
+from student_account import StudentAccount
 from exceptions import IncorrectDataException
 
 import keyboards as kb
@@ -40,6 +40,18 @@ async def send_schedule(message: Message):
 
     for text in schedule:
         await message.answer(text)
+
+
+# Меню "Баллы БРС"
+@dp.message(F.text == "📉 Баллы БРС")
+async def send_rating(message: Message):
+    global users_chat_id
+
+    msg = await message.answer("Обрабатываю запрос...")
+
+    rating = await users_chat_id[message.chat.id][1].rating.all_disciplines_rating
+
+    await msg.edit_text(rating)
 
 
 @dp.message(F.text == "✅ Авторизация")

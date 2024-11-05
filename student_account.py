@@ -1,5 +1,6 @@
 from parser_config import USER_BROWSER_PROFILE, USER_DATA_DIR
-from schedule_parser.ScheduleParser import ScheduleParser
+from schedule_parser.schedule_parser import ScheduleParser
+from rating_parser.rating_parser import RatingParser
 
 from dataclasses import dataclass
 from time import sleep
@@ -106,3 +107,7 @@ class StudentAccount:
     @property
     def schedule(self):
         return ScheduleParser(browser=self.browser, account=self)
+
+    @property
+    def rating(self):
+        return RatingParser(browser=self.browser, account=self)
