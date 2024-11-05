@@ -2,11 +2,8 @@ from dataclasses import dataclass
 import json
 
 import asyncio
+from aiohttp import ClientSession, ClientResponse
 from async_property import async_property
-
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
 from bs4 import BeautifulSoup
 import lxml
@@ -14,30 +11,26 @@ import lxml
 
 @dataclass
 class RatingParser:
-    browser: None
+    cookies: dict
 
     account: None
 
     # URL страницы с расписанием.
     url: str = 'https://istudent.urfu.ru/s/http-urfu-ru-ru-students-study-brs'
 
-    @property
-    def soup(self) -> BeautifulSoup:
+    async def get_soup(self, response: ClientResponse) -> BeautifulSoup:
         '''
-        Свойство, которое возвращает объект BeautifulSoup.
+        Асинхронная функция, которая возвращает объект BeautifulSoup.
 
         Возвращает:
             BeautifulSoup - объект BeautifulSoup.
         '''
-        return BeautifulSoup(self.browser.page_source, "lxml")
+        return BeautifulSoup(await response.text(), "lxml")
 
     @async_property
-    async def all_disciplines_rating(self) -> None:
+    async def all_disciplines_rating(self) -> str:
         if not self._check_saved_file():
             await self.save_disciplines_rating()
-            self.browser.close()
-            self.browser.quit()
-            print(f"browser closed {self.account.user_login}")
 
         with open(r"rating_parser\rating.json", "r", encoding="utf-8") as json_file:
             rating = json.load(json_file)
@@ -50,14 +43,16 @@ class RatingParser:
             return text
 
     async def save_disciplines_rating(self):
-        self.browser.get(self.url)
+        async with ClientSession() as session:
 
-        WebDriverWait(self.browser, 10).until(
-            EC.visibility_of_element_located((By.ID, "disciplines"))
-        )
+            for cookie in self.cookies:
+                session.cookie_jar.update_cookies({cookie["name"]: cookie["value"]})
 
-        disciplines = self.soup.find("div", id="disciplines").find_all("div", recursive=False)
-        disciplines = filter(lambda x: "display: none" not in x.get("style", ""), disciplines)
+            async with session.get(self.url) as response:
+                soup = await self.get_soup(response=response)
+
+                disciplines = soup.find_all("a", class_="rating-discipline")
+                disciplines = filter(lambda x: "not-actual" not in x.get("class", ""), disciplines)
 
         with open(r"rating_parser\rating.json", "r", encoding="utf-8") as json_file:
             rating = json.load(json_file)
@@ -71,7 +66,7 @@ class RatingParser:
 
     def _check_saved_file(self) -> bool:
         try:
-            with open(r"rating_parser\ratung.json", "r", encoding="utf-8") as json_file:
+            with open(r"rating_parser\rating.json", "r", encoding="utf-8") as json_file:
                 rating = json.load(json_file)
                 if self.account.user_login in rating:
                     return True

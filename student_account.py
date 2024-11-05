@@ -12,6 +12,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import ChromeOptions
 
 import asyncio
+import aiohttp
+from bs4 import BeautifulSoup
+import lxml
 from async_property import async_property
 
 from fake_useragent import UserAgent
@@ -92,6 +95,8 @@ class StudentAccount:
             self.browser.find_element(By.ID, "userNameInput").send_keys(self.user_login)
             self.browser.find_element(By.ID, "passwordInput").send_keys(self.user_pass)
             self.browser.find_element(By.ID, "submitButton").click()
+            self.browser.implicitly_wait(1)
+            self.cookies = self.browser.get_cookies()
         except TimeoutException:
             raise AlreadyAuthorisedException
 
@@ -100,9 +105,10 @@ class StudentAccount:
         except NoSuchElementException:
             pass
         else:
+            raise IncorrectDataException
+        finally:
             self.browser.close()
             self.browser.quit()
-            raise IncorrectDataException
 
     @property
     def schedule(self):
@@ -110,4 +116,4 @@ class StudentAccount:
 
     @property
     def rating(self):
-        return RatingParser(browser=self.browser, account=self)
+        return RatingParser(cookies=self.cookies, account=self)
