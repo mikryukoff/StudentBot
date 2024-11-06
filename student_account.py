@@ -95,7 +95,6 @@ class StudentAccount:
             self.browser.find_element(By.ID, "userNameInput").send_keys(self.user_login)
             self.browser.find_element(By.ID, "passwordInput").send_keys(self.user_pass)
             self.browser.find_element(By.ID, "submitButton").click()
-            self.browser.implicitly_wait(1)
             self.cookies = self.browser.get_cookies()
         except TimeoutException:
             raise AlreadyAuthorisedException
@@ -105,10 +104,9 @@ class StudentAccount:
         except NoSuchElementException:
             pass
         else:
-            raise IncorrectDataException
-        finally:
             self.browser.close()
             self.browser.quit()
+            raise IncorrectDataException
 
     @property
     def schedule(self):

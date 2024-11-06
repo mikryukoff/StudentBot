@@ -41,7 +41,7 @@ async def send_schedule(message: Message):
     if page != len(week_days) - 1 and page != 0:
 
         await message.answer(
-            text=schedule[page], 
+            text=schedule[page],
             reply_markup=create_pagination_keyboard("backward", week_days[page], "forward")
             )
 

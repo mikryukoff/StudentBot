@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import asyncio
 from async_property import async_property
 
+from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -20,7 +21,7 @@ class NoData:
 
 @dataclass
 class ScheduleParser:
-    browser: None
+    browser: Chrome
 
     account: None
 
@@ -71,28 +72,6 @@ class ScheduleParser:
 
         return schedule_iter
 
-    @property
-    def week_days(self) -> list:
-        '''
-        Свойство, которое возвращает список с названиями дней, указанных на странице.
-
-        Принимает:
-            soup: BeautifulSoup - суп страницы с расписанием.
-        Возвращает:
-            Список с названиями дней.
-        '''
-        return [day.text for day in self.soup.select(".fc-day-header span")]
-
-    @property
-    def soup(self) -> BeautifulSoup:
-        '''
-        Свойство, которое возвращает объект BeautifulSoup.
-
-        Возвращает:
-            BeautifulSoup - объект BeautifulSoup.
-        '''
-        return BeautifulSoup(self.browser.page_source, "lxml")
-
     async def save_week_schedule(self, next_week: bool = False) -> None:
         '''
         Сохраняет в файл schedule.json расписание на неделю,
@@ -121,6 +100,8 @@ class ScheduleParser:
             EC.visibility_of_any_elements_located((By.CSS_SELECTOR, ".fc-title"))
         )
 
+        self.soup = BeautifulSoup(self.browser.page_source, "lxml")
+
         if next_week:
             await self._change_to_next_week()
 
@@ -129,7 +110,7 @@ class ScheduleParser:
 
         # Записываем в файл schedule.json расписание.
         with open(r"schedule_parser\schedule.json", mode="w", encoding="utf-8") as json_file:
-            week_days = self.week_days
+            week_days = [day.text for day in self.soup.select(".fc-day-header span")]
             schedule_cols = self.soup.select(".fc-content-col")
 
             for day in week_days:
@@ -188,7 +169,6 @@ class ScheduleParser:
 
     async def _change_to_next_week(self) -> None:
         self.browser.find_element(By.XPATH, "//span[@class='fc-icon fc-icon-right-single-arrow']").click()
-        self.browser.refresh()
 
         WebDriverWait(self.browser, 10).until(
             EC.visibility_of_all_elements_located((By.CSS_SELECTOR, ".fc-title"))
