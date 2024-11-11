@@ -1,6 +1,6 @@
-from parser_config import USER_BROWSER_PROFILE, USER_DATA_DIR
-from schedule_parser.schedule_parser import ScheduleParser
-from rating_parser.rating_parser import RatingParser
+from student_account.webdriver_config import USER_BROWSER_PROFILE, USER_DATA_DIR
+from schedule_parser import ScheduleParser
+from rating_parser import RatingParser
 
 from dataclasses import dataclass
 from time import sleep
@@ -11,15 +11,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import ChromeOptions
 
-import asyncio
-import aiohttp
-from bs4 import BeautifulSoup
-import lxml
 from async_property import async_property
 
 from fake_useragent import UserAgent
 
-from exceptions import IncorrectDataException, AlreadyAuthorisedException
+from .exceptions import IncorrectDataException, AlreadyAuthorisedException
 from selenium.common.exceptions import SessionNotCreatedException, TimeoutException, NoSuchElementException
 
 
@@ -55,10 +51,10 @@ class StudentAccount:
         options.add_argument("--disable-blink-features=AutomationControlled")
 
         # Запуск браузера без графической оболочки.
-        options.add_argument("--headless")
+        # options.add_argument("--headless")
 
-        # Отключение использования GPU.
-        options.add_argument("--disable-gpu")
+        # # Отключение использования GPU.
+        # options.add_argument("--disable-gpu")
 
         options.add_argument("--no-sandbox")
 
@@ -114,4 +110,4 @@ class StudentAccount:
 
     @property
     def rating(self):
-        return RatingParser(cookies=self.cookies, account=self)
+        return RatingParser(cookies=self.cookies, account=self, browser=self.browser)

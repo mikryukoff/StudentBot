@@ -3,5 +3,7 @@ config.py
 __pycache__
 .mypy_cache
 TelegramBot
-parser_config.py
+webdriver_config.py
 bot_config.py
+test.py
+todo_list.txt

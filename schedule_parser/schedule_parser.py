@@ -46,9 +46,6 @@ class ScheduleParser:
         '''
         if not self._check_saved_file():
             await self.save_week_schedule(next_week=next_week)
-            self.browser.close()
-            self.browser.quit()
-            print(f"browser closed {self.account.user_login}")
 
         with open(r"schedule_parser\schedule.json", mode="rb") as json_file:
             schedule = json.load(json_file)

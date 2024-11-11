@@ -1,6 +1,6 @@
 from bot_config import BOT_TOKEN
 from student_account import StudentAccount
-from exceptions import IncorrectDataException
+from student_account.exceptions import IncorrectDataException
 
 import keyboards as kb
 from pagination_kb import create_pagination_keyboard
@@ -26,8 +26,21 @@ async def process_start_command(message: Message):
     users_chat_id.setdefault(message.chat.id, None)
 
 
+@dp.message(F.text == "Главное меню")
+async def main_menu_button(message: Message):
+    await message.answer("Возвращаюсь в главное меню...", reply_markup=kb.StartMenu)
+
+
+############################## Расписание ##############################
+
+
 @dp.message(F.text == "📅 Расписание")
-async def send_schedule(message: Message):
+async def schedule_menu(message: Message):
+    await message.answer("Я могу отправить расписание на неделю\nили на конкретный день", reply_markup=kb.ScheduleMenu)
+
+
+@dp.message(F.text == "На неделю")
+async def send_week_schedule(message: Message):
     global users_chat_id
     global schedule
     global week_days
@@ -36,91 +49,186 @@ async def send_schedule(message: Message):
 
     schedule = await users_chat_id[message.chat.id]["schedule"].week_schedule
     week_days = [i.split("\n\n")[0].strip(":") for i in schedule]
-    page = users_chat_id[message.chat.id]["page"]
+    page = users_chat_id[message.chat.id]["schedule_page"]
 
     if page != len(week_days) - 1 and page != 0:
 
         await message.answer(
             text=schedule[page],
-            reply_markup=create_pagination_keyboard("backward", week_days[page], "forward")
+            reply_markup=create_pagination_keyboard("backward_schedule", week_days[page], "forward_schedule")
             )
 
     elif page == 0:
 
         await message.answer(
             text=schedule[page], 
-            reply_markup=create_pagination_keyboard(week_days[page], "forward")
+            reply_markup=create_pagination_keyboard(week_days[page], "forward_schedule")
             )
     else:
 
         await message.answer(
             text=schedule[page], 
-            reply_markup=create_pagination_keyboard("backward", week_days[page])
+            reply_markup=create_pagination_keyboard("backward_schedule", week_days[page])
             )
 
 
-@dp.callback_query(F.data == "forward")
-async def press_forward(callback: CallbackQuery):
+@dp.callback_query(F.data == "forward_schedule")
+async def press_forward_schedule(callback: CallbackQuery):
     global users_chat_id
     global schedule
     global week_days
 
-    page = users_chat_id[callback.from_user.id]["page"]
+    page = users_chat_id[callback.from_user.id]["schedule_page"]
 
     if page + 1 < len(week_days) - 1:
 
         await callback.message.edit_text(
             text=schedule[page + 1],
-            reply_markup=create_pagination_keyboard("backward", week_days[page + 1], "forward")
+            reply_markup=create_pagination_keyboard("backward_schedule", week_days[page + 1], "forward_schedule")
             )
     else:
 
         await callback.message.edit_text(
             text=schedule[page + 1],
-            reply_markup=create_pagination_keyboard("backward", week_days[page + 1])
+            reply_markup=create_pagination_keyboard("backward_schedule", week_days[page + 1])
             )
 
-    users_chat_id[callback.from_user.id]["page"] += 1
+    users_chat_id[callback.from_user.id]["schedule_page"] += 1
 
     await callback.answer()
 
 
-@dp.callback_query(F.data == "backward")
-async def press_backward(callback: CallbackQuery):
+@dp.callback_query(F.data == "backward_schedule")
+async def press_backward_schedule(callback: CallbackQuery):
     global users_chat_id
     global schedule
     global week_days
 
-    page = users_chat_id[callback.from_user.id]["page"]
+    page = users_chat_id[callback.from_user.id]["schedule_page"]
 
     if page - 1 > 0:
 
         await callback.message.edit_text(
             text=schedule[page - 1],
-            reply_markup=create_pagination_keyboard("backward", week_days[page - 1], "forward")
+            reply_markup=create_pagination_keyboard("backward_schedule", week_days[page - 1], "forward_schedule")
             )
 
     else:
 
         await callback.message.edit_text(
             text=schedule[page - 1],
-            reply_markup=create_pagination_keyboard(week_days[page - 1], "forward")
+            reply_markup=create_pagination_keyboard(week_days[page - 1], "forward_schedule")
             )
 
-    users_chat_id[callback.from_user.id]["page"] -= 1
+    users_chat_id[callback.from_user.id]["schedule_page"] -= 1
 
     await callback.answer()
 
 
+############################## Баллы БРС ###############################
+
+
 @dp.message(F.text == "📉 Баллы БРС")
-async def send_rating(message: Message):
+async def rating_menu(message: Message):
+    await message.answer("Я могу отправить вам все ваши баллы БРС\nили только по конкретному предмету", reply_markup=kb.RatingMenu)
+
+
+@dp.message(F.text == "Баллы кратко")
+async def send_short_rating(message: Message):
     global users_chat_id
 
     msg = await message.answer("Обрабатываю запрос...")
 
-    rating = await users_chat_id[message.chat.id]["rating"].all_disciplines_rating
+    rating = await users_chat_id[message.chat.id]["rating"].short_disciplines_rating
 
     await msg.edit_text(rating)
+
+
+@dp.message(F.text == "Баллы подробно")
+async def send_full_rating(message: Message):
+    global users_chat_id
+    global rating
+    global disciplines
+
+    await message.answer("Обрабатываю запрос...")
+
+    rating = await users_chat_id[message.chat.id]["rating"].full_disciplines_rating
+    # disciplines = [i.split(":\n")[0] for i in rating]
+    disciplines = [str(i) for i in range(1, len(rating) + 1)]
+    page = users_chat_id[message.chat.id]["rating_page"]
+
+    if page != len(disciplines) - 1 and page != 0:
+
+        await message.answer(
+            text=rating[page],
+            reply_markup=create_pagination_keyboard("backward_rating", disciplines[page], "forward_rating")
+            )
+
+    elif page == 0:
+
+        await message.answer(
+            text=rating[page], 
+            reply_markup=create_pagination_keyboard(disciplines[page], "forward_rating")
+            )
+    else:
+
+        await message.answer(
+            text=rating[page], 
+            reply_markup=create_pagination_keyboard("backward_rating", disciplines[page])
+            )
+
+
+@dp.callback_query(F.data == "forward_rating")
+async def press_forward_rating(callback: CallbackQuery):
+    global users_chat_id
+    global rating
+    global disciplines
+
+    page = users_chat_id[callback.from_user.id]["rating_page"]
+
+    if page + 1 < len(disciplines) - 1:
+
+        await callback.message.edit_text(
+            text=rating[page + 1],
+            reply_markup=create_pagination_keyboard("backward_rating", disciplines[page + 1], "forward_rating")
+            )
+    else:
+
+        await callback.message.edit_text(
+            text=rating[page + 1],
+            reply_markup=create_pagination_keyboard("backward_rating", disciplines[page + 1])
+            )
+
+    users_chat_id[callback.from_user.id]["rating_page"] += 1
+
+    await callback.answer()
+
+
+@dp.callback_query(F.data == "backward_rating")
+async def press_backward_rating(callback: CallbackQuery):
+    global users_chat_id
+    global rating
+    global disciplines
+
+    page = users_chat_id[callback.from_user.id]["rating_page"]
+
+    if page - 1 > 0:
+
+        await callback.message.edit_text(
+            text=rating[page - 1],
+            reply_markup=create_pagination_keyboard("backward_rating", disciplines[page - 1], "forward_rating")
+            )
+
+    else:
+
+        await callback.message.edit_text(
+            text=rating[page - 1],
+            reply_markup=create_pagination_keyboard(disciplines[page - 1], "forward_rating")
+            )
+
+    users_chat_id[callback.from_user.id]["rating_page"] -= 1
+
+    await callback.answer()
 
 
 @dp.message(F.text == "✅ Авторизация")
@@ -172,7 +280,8 @@ async def password(message: Message):
             "account": account,
             "schedule": account.schedule,
             "rating": account.rating,
-            "page": 0
+            "schedule_page": 0,
+            "rating_page": 0
         }
 
     except IncorrectDataException:
