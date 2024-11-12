@@ -19,16 +19,16 @@ users_chat_id: dict = {}
 # Команда "/start"
 @dp.message(CommandStart())
 async def process_start_command(message: Message):
-    await message.answer("Привет!\nМеня зовут StudentBot!\nЯ могу отправить расписание и баллы БРС!")
-    await message.answer("Для работы со мной, требуется авторизация по паролю и логину.", reply_markup=kb.LogInMenu)
+    await message.answer("✋ Привет,\n🤖 Меня зовут StudentBot.\n🦾 Я могу отправить расписание и баллы БРС!")
+    await message.answer("⚠️ Для работы со мной, требуется авторизация по паролю и логину.", reply_markup=kb.LogInMenu)
 
     global users_chat_id
     users_chat_id.setdefault(message.chat.id, None)
 
 
-@dp.message(F.text == "Главное меню")
+@dp.message(F.text == "️🔙 В главное меню")
 async def main_menu_button(message: Message):
-    await message.answer("Возвращаюсь в главное меню...", reply_markup=kb.StartMenu)
+    await message.answer("👣 Вы вернулись в главное меню!", reply_markup=kb.StartMenu)
 
 
 ############################## Расписание ##############################
@@ -36,16 +36,21 @@ async def main_menu_button(message: Message):
 
 @dp.message(F.text == "📅 Расписание")
 async def schedule_menu(message: Message):
-    await message.answer("Я могу отправить расписание на неделю\nили на конкретный день", reply_markup=kb.ScheduleMenu)
+    await message.answer("🗓 Я могу отправить расписание на неделю или на конкретный день.", reply_markup=kb.ScheduleMenu)
 
 
-@dp.message(F.text == "На неделю")
+@dp.message(F.text == "📆 Расписание на день")
+async def send_day_schedule(message: Message):
+    await message.answer("😊 Извините, данная функция в разработке, вы можете попросить расписание на неделю.")
+
+
+@dp.message(F.text == "🗓 Расписание на неделю")
 async def send_week_schedule(message: Message):
     global users_chat_id
     global schedule
     global week_days
 
-    await message.answer("Обрабатываю запрос...")
+    await message.answer("🧠 Обрабатываю запрос...")
 
     schedule = await users_chat_id[message.chat.id]["schedule"].week_schedule
     week_days = [i.split("\n\n")[0].strip(":") for i in schedule]
@@ -130,27 +135,32 @@ async def press_backward_schedule(callback: CallbackQuery):
 
 @dp.message(F.text == "📉 Баллы БРС")
 async def rating_menu(message: Message):
-    await message.answer("Я могу отправить вам все ваши баллы БРС\nили только по конкретному предмету", reply_markup=kb.RatingMenu)
+    await message.answer("📝 Я могу отправить вам все ваши баллы БРС или только по конкретному предмету.", reply_markup=kb.RatingMenu)
 
 
-@dp.message(F.text == "Баллы кратко")
+@dp.message(F.text == "📝 Баллы по предмету")
+async def send_discipline_rating(message: Message):
+    await message.answer("😊 Извините, данная функция в разработке, зато две другие работают.")
+
+
+@dp.message(F.text == "📕 Все баллы кратко")
 async def send_short_rating(message: Message):
     global users_chat_id
 
-    msg = await message.answer("Обрабатываю запрос...")
+    msg = await message.answer("🧠 Обрабатываю запрос...")
 
     rating = await users_chat_id[message.chat.id]["rating"].short_disciplines_rating
 
     await msg.edit_text(rating)
 
 
-@dp.message(F.text == "Баллы подробно")
+@dp.message(F.text == "📚 Все баллы подробно")
 async def send_full_rating(message: Message):
     global users_chat_id
     global rating
     global disciplines
 
-    await message.answer("Обрабатываю запрос...")
+    await message.answer("🧠 Обрабатываю запрос...")
 
     rating = await users_chat_id[message.chat.id]["rating"].full_disciplines_rating
     # disciplines = [i.split(":\n")[0] for i in rating]
@@ -236,10 +246,10 @@ async def authorisation(message: Message):
     global users_chat_id
 
     if users_chat_id[message.chat.id]:
-        await message.answer("Вы уже авторизованы!")
+        await message.answer("❗️ Вы уже авторизованы!", reply_markup=kb.StartMenu)
         return
 
-    await message.answer("Введите логин от личного кабинета: ")
+    await message.answer("▶️ Введите логин от личного кабинета: ")
 
 
 @dp.message(F.text.contains("@"))
@@ -252,7 +262,7 @@ async def login(message: Message):
 
     users_chat_id[message.chat.id] = message.text
 
-    await message.answer("Введите пароль от личного кабинета: ")
+    await message.answer("▶️ Введите пароль от личного кабинета: ")
 
 
 # СДЕЛАТЬ НОРМАЛЬНУЮ ПРОВЕРКУ
@@ -261,7 +271,7 @@ async def password(message: Message):
     global users_chat_id
 
     if not users_chat_id[message.chat.id] or "@" not in users_chat_id[message.chat.id]:
-        await message.answer("Неверный логин! Повторите попытку: ")
+        await message.answer("❗️ Неверный логин! Повторите попытку: ")
         return
 
     if isinstance(users_chat_id[message.chat.id], dict):
@@ -271,7 +281,7 @@ async def password(message: Message):
     login = users_chat_id[message.chat.id]
     password = message.text
 
-    await message.answer("Подключаюсь к вашему личному кабинету...")
+    await message.answer("🛜 Подключаюсь к вашему личному кабинету...")
 
     try:
         account = await StudentAccount(login, password).driver
@@ -285,10 +295,10 @@ async def password(message: Message):
         }
 
     except IncorrectDataException:
-        await message.answer("Неправильно введены данные, попробуйте ещё раз...", reply_markup=kb.LogInMenu)
+        await message.answer("❌ Неправильно введены данные, попробуйте ещё раз...", reply_markup=kb.LogInMenu)
         users_chat_id[message.chat.id] = None
     else:
-        await message.answer("Подключение прошло успешно!", reply_markup=kb.StartMenu)
+        await message.answer("✅ Подключение прошло успешно!", reply_markup=kb.StartMenu)
 
 
 if __name__ == "__main__":

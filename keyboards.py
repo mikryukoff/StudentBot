@@ -27,10 +27,12 @@ StartMenu = ReplyKeyboardMarkup(
 RatingMenu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Выбрать предмет"),
-            KeyboardButton(text="Баллы кратко"),
-            KeyboardButton(text="Баллы подробно"),
-            KeyboardButton(text="Главное меню")
+            KeyboardButton(text="📝 Баллы по предмету"), 
+            KeyboardButton(text="📕 Все баллы кратко"), 
+            KeyboardButton(text="📚 Все баллы подробно")
+        ],
+        [
+            KeyboardButton(text="️🔙 В главное меню")
         ]
     ],
     resize_keyboard=True,
@@ -41,12 +43,14 @@ RatingMenu = ReplyKeyboardMarkup(
 ScheduleMenu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="На неделю"),
-            KeyboardButton(text="На день"),
-            KeyboardButton(text="Главное меню")
+            KeyboardButton(text="🗓 Расписание на неделю"), 
+            KeyboardButton(text="📆 Расписание на день")
+        ],
+        [
+            KeyboardButton(text="️🔙 В главное меню")
         ]
     ],
     resize_keyboard=True,
     one_time_keyboard=False,
-    input_field_placeholder="БРС меню"
+    input_field_placeholder="Меню расписания"
 )

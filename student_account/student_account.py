@@ -25,8 +25,6 @@ class StudentAccount:
 
     user_pass: str
 
-    __page_user_name: str = None
-
     url: str = "https://istudent.urfu.ru/?auth-ok"
 
     browser: webdriver.Chrome = None
@@ -51,10 +49,10 @@ class StudentAccount:
         options.add_argument("--disable-blink-features=AutomationControlled")
 
         # Запуск браузера без графической оболочки.
-        # options.add_argument("--headless")
+        options.add_argument("--headless")
 
-        # # Отключение использования GPU.
-        # options.add_argument("--disable-gpu")
+        # Отключение использования GPU.
+        options.add_argument("--disable-gpu")
 
         options.add_argument("--no-sandbox")
 
@@ -81,8 +79,8 @@ class StudentAccount:
 
     async def __authorisation(self) -> None:
         self.browser.get(self.url)
-
         self.browser.find_element(By.CLASS_NAME, "auth").click()
+
         try:
             WebDriverWait(self.browser, 10).until(
                 EC.visibility_of_any_elements_located((By.ID, "userNameInput"))

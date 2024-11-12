@@ -3,10 +3,10 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
 LEXICON: dict[str, str] = {
-    'forward_schedule': '>>',
-    'backward_schedule': '<<',
-    'forward_rating': '>>',
-    'backward_rating': '<<'
+    "forward_schedule": "⏩",
+    "backward_schedule": "⏪",
+    "forward_rating": "⏩",
+    "backward_rating": "⏪"
     }
 
 
