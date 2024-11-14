@@ -1,13 +1,6 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
-
-LEXICON: dict[str, str] = {
-    "forward_schedule": "⏩",
-    "backward_schedule": "⏪",
-    "forward_rating": "⏩",
-    "backward_rating": "⏪"
-    }
+from lexicon import LEXICON
 
 
 def create_pagination_keyboard(*buttons: str) -> InlineKeyboardMarkup:

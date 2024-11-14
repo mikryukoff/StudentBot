@@ -1,9 +1,9 @@
 *.json
-config.py
 __pycache__
 .mypy_cache
 TelegramBot
-webdriver_config.py
-bot_config.py
 test.py
 todo_list.txt
+.env
+venv
+main.py

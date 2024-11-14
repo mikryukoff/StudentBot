@@ -1,4 +1,4 @@
-from student_account.webdriver_config import USER_BROWSER_PROFILE, USER_DATA_DIR
+from config_data.webdriver_config import load_config
 from schedule_parser import ScheduleParser
 from rating_parser import RatingParser
 
@@ -34,13 +34,15 @@ class StudentAccount:
 
         # -------------------- Настройки Chrome Webdriver -------------------- #
 
+        config = load_config()
+
         options = ChromeOptions()
 
         # Путь к директории профиля браузера Chrome.
         # options.add_argument(fr"{USER_DATA_DIR}")
 
         # Название директории профиля браузера Chrome.
-        options.add_argument(f"--profile-directory={USER_BROWSER_PROFILE}")
+        options.add_argument(f"--profile-directory={config.webdriver.user_profile}")
 
         # Запуск браузера в полноэкранном режиме.
         options.add_argument("--start-maximized")

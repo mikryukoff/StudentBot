@@ -1,16 +1,20 @@
-from bot_config import BOT_TOKEN
+from config_data.bot_config import load_config
 from student_account import StudentAccount
 from student_account.exceptions import IncorrectDataException
 
-import keyboards as kb
-from pagination_kb import create_pagination_keyboard
+import keyboards.menu_kb as kb
+from keyboards.pagination_kb import create_pagination_keyboard
+
+from lexicon import LEXICON, LEXICON_COMMANDS
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
 
 
-bot = Bot(token=BOT_TOKEN)
+config = load_config()
+
+bot = Bot(token=config.tg_bot.token)
 dp = Dispatcher()
 
 users_chat_id: dict = {}
@@ -19,38 +23,37 @@ users_chat_id: dict = {}
 # Команда "/start"
 @dp.message(CommandStart())
 async def process_start_command(message: Message):
-    await message.answer("✋ Привет,\n🤖 Меня зовут StudentBot.\n🦾 Я могу отправить расписание и баллы БРС!")
-    await message.answer("⚠️ Для работы со мной, требуется авторизация по паролю и логину.", reply_markup=kb.LogInMenu)
+    await message.answer(LEXICON["/start"], reply_markup=kb.LogInMenu)
 
     global users_chat_id
     users_chat_id.setdefault(message.chat.id, None)
 
 
-@dp.message(F.text == "️🔙 В главное меню")
+@dp.message(F.text == LEXICON_COMMANDS["to_main_menu"])
 async def main_menu_button(message: Message):
-    await message.answer("👣 Вы вернулись в главное меню!", reply_markup=kb.StartMenu)
+    await message.answer(LEXICON["to_main_menu"], reply_markup=kb.StartMenu)
 
 
 ############################## Расписание ##############################
 
 
-@dp.message(F.text == "📅 Расписание")
+@dp.message(F.text == LEXICON_COMMANDS["schedule"])
 async def schedule_menu(message: Message):
-    await message.answer("🗓 Я могу отправить расписание на неделю или на конкретный день.", reply_markup=kb.ScheduleMenu)
+    await message.answer(LEXICON["schedule"], reply_markup=kb.ScheduleMenu)
 
 
-@dp.message(F.text == "📆 Расписание на день")
+@dp.message(F.text == LEXICON_COMMANDS["day_schedule"])
 async def send_day_schedule(message: Message):
-    await message.answer("😊 Извините, данная функция в разработке, вы можете попросить расписание на неделю.")
+    await message.answer(LEXICON["unvailable"])
 
 
-@dp.message(F.text == "🗓 Расписание на неделю")
+@dp.message(F.text == LEXICON_COMMANDS["week_schedule"])
 async def send_week_schedule(message: Message):
     global users_chat_id
     global schedule
     global week_days
 
-    await message.answer("🧠 Обрабатываю запрос...")
+    await message.answer(LEXICON["processing"])
 
     schedule = await users_chat_id[message.chat.id]["schedule"].week_schedule
     week_days = [i.split("\n\n")[0].strip(":") for i in schedule]
@@ -133,34 +136,34 @@ async def press_backward_schedule(callback: CallbackQuery):
 ############################## Баллы БРС ###############################
 
 
-@dp.message(F.text == "📉 Баллы БРС")
+@dp.message(F.text == LEXICON_COMMANDS["rating"])
 async def rating_menu(message: Message):
-    await message.answer("📝 Я могу отправить вам все ваши баллы БРС или только по конкретному предмету.", reply_markup=kb.RatingMenu)
+    await message.answer(LEXICON["rating"], reply_markup=kb.RatingMenu)
 
 
-@dp.message(F.text == "📝 Баллы по предмету")
+@dp.message(F.text == LEXICON_COMMANDS["discipline_rating"])
 async def send_discipline_rating(message: Message):
-    await message.answer("😊 Извините, данная функция в разработке, зато две другие работают.")
+    await message.answer(LEXICON["unvailable"])
 
 
-@dp.message(F.text == "📕 Все баллы кратко")
+@dp.message(F.text == LEXICON_COMMANDS["short_rating"])
 async def send_short_rating(message: Message):
     global users_chat_id
 
-    msg = await message.answer("🧠 Обрабатываю запрос...")
+    msg = await message.answer(LEXICON["processing"])
 
     rating = await users_chat_id[message.chat.id]["rating"].short_disciplines_rating
 
     await msg.edit_text(rating)
 
 
-@dp.message(F.text == "📚 Все баллы подробно")
+@dp.message(F.text == LEXICON_COMMANDS["full_rating"])
 async def send_full_rating(message: Message):
     global users_chat_id
     global rating
     global disciplines
 
-    await message.answer("🧠 Обрабатываю запрос...")
+    await message.answer(LEXICON["processing"])
 
     rating = await users_chat_id[message.chat.id]["rating"].full_disciplines_rating
     # disciplines = [i.split(":\n")[0] for i in rating]
@@ -241,15 +244,15 @@ async def press_backward_rating(callback: CallbackQuery):
     await callback.answer()
 
 
-@dp.message(F.text == "✅ Авторизация")
+@dp.message(F.text == LEXICON_COMMANDS["authorisation"])
 async def authorisation(message: Message):
     global users_chat_id
 
     if users_chat_id[message.chat.id]:
-        await message.answer("❗️ Вы уже авторизованы!", reply_markup=kb.StartMenu)
+        await message.answer(LEXICON["already_auth"], reply_markup=kb.StartMenu)
         return
 
-    await message.answer("▶️ Введите логин от личного кабинета: ")
+    await message.answer(LEXICON["log_in"])
 
 
 @dp.message(F.text.contains("@"))
@@ -257,12 +260,12 @@ async def login(message: Message):
     global users_chat_id
 
     if users_chat_id[message.chat.id]:
-        await message.answer("Попытка ввода логина...\nВы уже авторизованы!")
+        await message.answer(LEXICON["already_auth"])
         return
 
     users_chat_id[message.chat.id] = message.text
 
-    await message.answer("▶️ Введите пароль от личного кабинета: ")
+    await message.answer(LEXICON["pass_in"])
 
 
 # СДЕЛАТЬ НОРМАЛЬНУЮ ПРОВЕРКУ
@@ -271,17 +274,17 @@ async def password(message: Message):
     global users_chat_id
 
     if not users_chat_id[message.chat.id] or "@" not in users_chat_id[message.chat.id]:
-        await message.answer("❗️ Неверный логин! Повторите попытку: ")
+        await message.answer(LEXICON["incorrect_user_data"])
         return
 
     if isinstance(users_chat_id[message.chat.id], dict):
-        await message.answer("Попытка ввода пароля...\nВы уже авторизованы!")
+        await message.answer(LEXICON["already_auth"])
         return
 
     login = users_chat_id[message.chat.id]
     password = message.text
 
-    await message.answer("🛜 Подключаюсь к вашему личному кабинету...")
+    await message.answer(LEXICON["connecting_to_PA"])
 
     try:
         account = await StudentAccount(login, password).driver
@@ -295,10 +298,10 @@ async def password(message: Message):
         }
 
     except IncorrectDataException:
-        await message.answer("❌ Неправильно введены данные, попробуйте ещё раз...", reply_markup=kb.LogInMenu)
+        await message.answer(LEXICON["incorrect_user_data"], reply_markup=kb.LogInMenu)
         users_chat_id[message.chat.id] = None
     else:
-        await message.answer("✅ Подключение прошло успешно!", reply_markup=kb.StartMenu)
+        await message.answer(LEXICON["successful_connection"], reply_markup=kb.StartMenu)
 
 
 if __name__ == "__main__":

@@ -119,7 +119,6 @@ class RatingParser:
                     continue
 
                 chapter_name, chapter_rating = " ".join(chapter.find(class_="brs-h4").text.split()).split(":")
-                print(chapter_name)
                 full_info = " ".join(chapter.find(class_="rating-marks").text.split())
 
                 discipline_info.setdefault(chapter_name, {}).setdefault(chapter_rating, full_info)
