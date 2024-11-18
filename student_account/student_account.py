@@ -1,4 +1,4 @@
-from config_data.webdriver_config import load_config
+from config_data.config import load_config
 from schedule_parser import ScheduleParser
 from rating_parser import RatingParser
 

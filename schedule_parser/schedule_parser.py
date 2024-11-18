@@ -47,7 +47,7 @@ class ScheduleParser:
         if not self._check_saved_file():
             await self.save_week_schedule(next_week=next_week)
 
-        with open(r"schedule_parser\schedule.json", mode="rb") as json_file:
+        with open(r"database\schedule.json", mode="rb") as json_file:
             schedule = json.load(json_file)
             schedule = schedule[self.account.user_login]
 
@@ -102,11 +102,11 @@ class ScheduleParser:
         if next_week:
             await self._change_to_next_week()
 
-        with open(r"schedule_parser\schedule.json", mode="r", encoding="utf-8") as json_file:
+        with open(r"database\schedule.json", mode="r", encoding="utf-8") as json_file:
             schedule = json.load(json_file)
 
         # Записываем в файл schedule.json расписание.
-        with open(r"schedule_parser\schedule.json", mode="w", encoding="utf-8") as json_file:
+        with open(r"database\schedule.json", mode="w", encoding="utf-8") as json_file:
             week_days = [day.text for day in self.soup.select(".fc-day-header span")]
             schedule_cols = self.soup.select(".fc-content-col")
 
@@ -154,13 +154,13 @@ class ScheduleParser:
 
     def _check_saved_file(self) -> bool:
         try:
-            with open(r"schedule_parser\schedule.json", "r", encoding="utf-8") as json_file:
+            with open(r"database\schedule.json", "r", encoding="utf-8") as json_file:
                 schedule = json.load(json_file)
                 if self.account.user_login in schedule:
                     return True
                 return False
         except FileNotFoundError:
-            with open(r"schedule_parser\schedule.json", "w", encoding="utf-8") as json_file:
+            with open(r"database\schedule.json", "w", encoding="utf-8") as json_file:
                 json.dump(dict(), json_file, ensure_ascii=False, indent=2)
                 return False
 

@@ -32,7 +32,7 @@ class RatingParser:
         if not self._check_saved_file():
             await self.save_short_disciplines_rating()
 
-        with open(r"rating_parser\rating.json", "r", encoding="utf-8") as json_file:
+        with open(r"database\rating.json", "r", encoding="utf-8") as json_file:
             rating = json.load(json_file)
             rating = rating[self.account.user_login]
 
@@ -47,7 +47,7 @@ class RatingParser:
         if not self._check_full_saved_file():
             await self.save_full_disciplines_rating()
 
-        with open(r"rating_parser\full_rating.json", "r", encoding="utf-8") as json_file:
+        with open(r"database\full_rating.json", "r", encoding="utf-8") as json_file:
             rating = json.load(json_file)
             rating = rating[self.account.user_login]
 
@@ -80,10 +80,10 @@ class RatingParser:
 
         disciplines = soup.select(".rating-discipline:not(.not-actual)")
 
-        with open(r"rating_parser\rating.json", "r", encoding="utf-8") as json_file:
+        with open(r"database\rating.json", "r", encoding="utf-8") as json_file:
             rating = json.load(json_file)
 
-        with open(r"rating_parser\rating.json", "w", encoding="utf-8") as json_file:
+        with open(r"database\rating.json", "w", encoding="utf-8") as json_file:
             for i in disciplines:
                 discipline, score = " ".join(i.text.split()[:-1]).split("Итоговая оценка:")
                 rating.setdefault(self.account.user_login, {}).setdefault(discipline.strip(), score.strip())
@@ -108,7 +108,7 @@ class RatingParser:
 
         disciplines_name = [i.find_element(By.CLASS_NAME, "td-0").text.strip() for i in disciplines]
 
-        with open(r"rating_parser\full_rating.json", "r", encoding="utf-8") as json_file:
+        with open(r"database\full_rating.json", "r", encoding="utf-8") as json_file:
             rating = json.load(json_file)
 
         for discipline_rating, discipline_name in zip(soup.select(".rating-discipline-info.loaded"), disciplines_name):
@@ -125,29 +125,29 @@ class RatingParser:
 
             rating.setdefault(self.account.user_login, {}).setdefault(discipline_name, discipline_info)
 
-        with open(r"rating_parser\full_rating.json", "w", encoding="utf-8") as json_file:
+        with open(r"database\full_rating.json", "w", encoding="utf-8") as json_file:
             json.dump(rating, json_file, ensure_ascii=False, indent=2)
 
     def _check_saved_file(self) -> bool:
         try:
-            with open(r"rating_parser\rating.json", "r", encoding="utf-8") as json_file:
+            with open(r"database\rating.json", "r", encoding="utf-8") as json_file:
                 rating = json.load(json_file)
                 if self.account.user_login in rating:
                     return True
                 return False
         except FileNotFoundError:
-            with open(r"rating_parser\rating.json", "w", encoding="utf-8") as json_file:
+            with open(r"database\rating.json", "w", encoding="utf-8") as json_file:
                 json.dump(dict(), json_file, ensure_ascii=False, indent=2)
                 return False
 
     def _check_full_saved_file(self) -> bool:
         try:
-            with open(r"rating_parser\full_rating.json", "r", encoding="utf-8") as json_file:
+            with open(r"database\full_rating.json", "r", encoding="utf-8") as json_file:
                 rating = json.load(json_file)
                 if self.account.user_login in rating:
                     return True
                 return False
         except FileNotFoundError:
-            with open(r"rating_parser\full_rating.json", "w", encoding="utf-8") as json_file:
+            with open(r"database\full_rating.json", "w", encoding="utf-8") as json_file:
                 json.dump(dict(), json_file, ensure_ascii=False, indent=2)
                 return False
