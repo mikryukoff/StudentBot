@@ -4,11 +4,25 @@
 
 - Все необходимые модули лежат в requirements.txt.
 - Необходимые переменные окружения лежат в .env.example.
-- Бот хранит данные в json файлах.
+- Бот хранит данные в json файлах в папке database.
+- Бот работает через Selenoid, который изолированно запускает браузеры в Docker-контейнерах.
+- Браузеры работают с помощью Selenium.WebDriver'а.
 
-## Настройка webdriver'а:
+## Запуск Selenoid'а:
 
-- Бот работает через selenium.webdriver.Chrome, поэтому должен быть установлен Chrome. 
-- В нём желательно создать дополнительный профиль.
-- В .env должен лежать путь к директории профиля браузера Chrome и имя профиля. Чтобы найти директорию с профилем браузера, нужно в строке браузера ввести chrome://version/, и взять его из "Путь к профилю".
-- Имя профиля - название последнего каталога в пути.
+- Если вы работаете на Linux (обычный сервер или виртуальная машина):
+'''$ tools/cm_linux_amd64 selenoid start --vnc --tmpfs 128'''
+- Если работаете на macOS:
+..*Для Intel-процессоров: 
+'''$ tools/cm_darwin_amd64 selenoid start --vnc --tmpfs 128'''
+..*Для Apple Silicon (M1/M2): 
+'''$ tools/cm_darwin_arm64 selenoid start --vnc --tmpfs 128'''
+- Если работаете на Windows:
+..*Для 32-битной версии Windows: 
+'''$ tools/cm_windows_386.exe selenoid start --vnc --tmpfs 128'''
+..*Для 64-битной версии Windows:
+'''$ tools/cm_windows_amd64.exe selenoid start --vnc --tmpfs 128'''
+
+## Настройка Selenoid'а и WebDriver'а:
+
+- Настройки для Selenoid'а и WebDriver'а лежат в папке config_data в файле config.py.
