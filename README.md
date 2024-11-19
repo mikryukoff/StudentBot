@@ -12,15 +12,21 @@
 
 - Если вы работаете на Linux (обычный сервер или виртуальная машина):
 ```$ tools/cm_linux_amd64 selenoid start --vnc --tmpfs 128```
+
 - Если работаете на macOS:
-..*Для Intel-процессоров: 
+
+  *Для Intel-процессоров: 
 ```$ tools/cm_darwin_amd64 selenoid start --vnc --tmpfs 128```
-..*Для Apple Silicon (M1/M2): 
+
+  *Для Apple Silicon (M1/M2): 
 ```$ tools/cm_darwin_arm64 selenoid start --vnc --tmpfs 128```
+
 - Если работаете на Windows:
-..*Для 32-битной версии Windows: 
+
+  *Для 32-битной версии Windows: 
 ```$ tools/cm_windows_386.exe selenoid start --vnc --tmpfs 128```
-..*Для 64-битной версии Windows:
+
+  *Для 64-битной версии Windows:
 ```$ tools/cm_windows_amd64.exe selenoid start --vnc --tmpfs 128```
 
 ## Настройка Selenoid'а и WebDriver'а:
