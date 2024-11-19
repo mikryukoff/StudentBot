@@ -5,10 +5,10 @@
 - Все необходимые модули лежат в requirements.txt.
 - Необходимые переменные окружения лежат в .env.example.
 - Бот хранит данные в json файлах в папке database.
-- Бот работает через Selenoid, который изолированно запускает браузеры в Docker-контейнерах.
+- Бот работает через [Selenoid](https://github.com/aerokube/selenoid), который изолированно запускает браузеры в Docker-контейнерах.
 - Браузеры работают с помощью Selenium.WebDriver'а.
 
-## Запуск Selenoid'а:
+## Запуск [Selenoid'а](https://github.com/aerokube/selenoid):
 
 **Если вы работаете на Linux (обычный сервер или виртуальная машина):**  
 ```bash
@@ -39,6 +39,6 @@ $ tools/cm_windows_386.exe selenoid start --vnc --tmpfs 128
 $ tools/cm_windows_amd64.exe selenoid start --vnc --tmpfs 128
 ```
 
-## Настройка Selenoid'а и WebDriver'а:
+## Настройка [Selenoid'а](https://github.com/aerokube/selenoid) и WebDriver'а:
 
-- Настройки для Selenoid'а и WebDriver'а лежат в папке config_data в файле config.py.
+- Настройки для [Selenoid'а](https://github.com/aerokube/selenoid) и WebDriver'а лежат в папке config_data в файле config.py.
