@@ -2,14 +2,14 @@ from dataclasses import dataclass
 import json
 import re
 
-from selenium.webdriver import Chrome
+from selenium.webdriver import Remote
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 
 import asyncio
-from aiohttp import ClientSession, ClientResponse
+from aiohttp import ClientSession
 from async_property import async_property
 
 from bs4 import BeautifulSoup
@@ -20,7 +20,7 @@ import lxml
 class RatingParser:
     cookies: dict
 
-    browser: Chrome
+    browser: Remote
 
     account: None
 

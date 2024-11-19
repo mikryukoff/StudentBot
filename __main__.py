@@ -5,7 +5,7 @@ import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
-from config_data.config import Config, load_config
+from config_data.config import load_config
 
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ async def main():
 
     logger.info('Starting bot')
 
-    config: Config = load_config()
+    config = load_config()
 
     # Инициализируем бот и диспетчер
     bot = Bot(

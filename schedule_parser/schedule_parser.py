@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import asyncio
 from async_property import async_property
 
-from selenium.webdriver import Chrome
+from selenium.webdriver import Remote
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -21,7 +21,7 @@ class NoData:
 
 @dataclass
 class ScheduleParser:
-    browser: Chrome
+    browser: Remote
 
     account: None
 
