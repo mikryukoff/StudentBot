@@ -39,6 +39,26 @@ class ScheduleParser:
         '''
         await self.week_schedule(next_week=True)
 
+    async def day_schedule(self, date: str, next_week: bool = False) -> str:
+        if not self._check_saved_file():
+            await self.save_week_schedule(next_week=next_week)
+
+        with open(r"database\schedule.json", mode="rb") as json_file:
+            day_schedule = json.load(json_file)
+            day_schedule = day_schedule[self.account.user_login][date]
+
+            text = f"{date}:\n\n"
+
+            for time in day_schedule:
+                if not day_schedule[time]:
+                    text += "Выходной"
+                    return text
+
+                lesson_name, classroom = day_schedule[time]
+                text += f"{lesson_name}\n{classroom}\n\n"
+
+        return text
+
     @async_property
     async def week_schedule(self, next_week: bool = False) -> list:
         '''

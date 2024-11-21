@@ -9,6 +9,7 @@ from environs import Env
 class WebDriver:
     options: list
     capability: dict
+    selenoid_url: str
 
 
 # Конфиг телеграм бота
@@ -49,7 +50,14 @@ def load_config(path: str | None = None) -> Config:
         }
     }
 
+    # URL Selenoid-сервера
+    selenoid_url = "http://localhost:4444/wd/hub"
+
     return Config(
-        webdriver=WebDriver(options=options, capability=capability),
+        webdriver=WebDriver(
+            options=options,
+            capability=capability,
+            selenoid_url=selenoid_url
+        ),
         tg_bot=TgBot(token=env("BOT_TOKEN"))
     )

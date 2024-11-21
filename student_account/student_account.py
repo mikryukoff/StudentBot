@@ -24,8 +24,6 @@ class StudentAccount:
 
     url: str = "https://istudent.urfu.ru/?auth-ok"
 
-    browser: webdriver.Remote = None
-
     @async_property
     async def driver(self):
 
@@ -39,11 +37,8 @@ class StudentAccount:
         # Загружаем настройки Selenoid'а
         options._caps.update(config.webdriver.capability)
 
-        # URL Selenoid-сервера
-        SELENOID_URL = "http://localhost:4444/wd/hub"
-
         self.browser = webdriver.Remote(
-            command_executor=SELENOID_URL,
+            command_executor=config.webdriver.selenoid_url,
             options=options
         )
 

@@ -1,6 +1,8 @@
 import keyboards.menu_kb as kb
 from keyboards.pagination_kb import create_pagination_keyboard
 
+from filters import DateFilter
+
 from database import users_data
 
 from lexicon import LEXICON, LEXICON_COMMANDS
@@ -18,8 +20,24 @@ async def schedule_menu(message: Message):
 
 
 @router.message(F.text == LEXICON_COMMANDS["day_schedule"])
+async def day_schedule_menu(message: Message):
+
+    schedule = await users_data[message.chat.id]["schedule"].week_schedule
+    week_days = [i.split("\n\n")[0].strip(":") for i in schedule]
+
+    await message.answer(
+        LEXICON["day_schedule"],
+        reply_markup=kb.week_dates_keyboard(week_days)
+        )
+
+
+@router.message(DateFilter())
 async def send_day_schedule(message: Message):
-    await message.answer(LEXICON["unvailable"])
+    msg = await message.answer(LEXICON["processing"])
+
+    day_schedule = await users_data[message.chat.id]["schedule"].day_schedule(date=message.text)
+
+    await msg.edit_text(text=day_schedule)
 
 
 @router.message(F.text == LEXICON_COMMANDS["week_schedule"])

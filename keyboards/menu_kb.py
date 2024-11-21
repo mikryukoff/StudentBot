@@ -54,3 +54,21 @@ ScheduleMenu = ReplyKeyboardMarkup(
     one_time_keyboard=False,
     input_field_placeholder="Меню расписания"
 )
+
+
+def week_dates_keyboard(dates: list) -> ReplyKeyboardMarkup:
+    keyboard = list()
+    buttons = list()
+
+    for day in dates:
+        buttons.append(KeyboardButton(text=day))
+
+    keyboard.append(buttons)
+    keyboard.append([KeyboardButton(text="️🔙 В главное меню")])
+
+    return ReplyKeyboardMarkup(
+        keyboard=keyboard,
+        resize_keyboard=True,
+        one_time_keyboard=False,
+        input_field_placeholder="Даты недели"
+        )
