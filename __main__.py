@@ -1,4 +1,9 @@
-from handlers import auth_handlers, rating_handlers, schedule_handlers, menu_handlers
+from handlers import (
+    auth_handlers,
+    rating_handlers,
+    schedule_handlers,
+    menu_handlers
+    )
 
 import asyncio
 import logging

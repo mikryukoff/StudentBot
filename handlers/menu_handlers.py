@@ -12,10 +12,16 @@ router: Router = Router()
 # Команда "/start"
 @router.message(CommandStart())
 async def process_start_command(message: Message):
-    await message.answer(LEXICON["/start"], reply_markup=kb.LogInMenu)
+    await message.answer(
+        text=LEXICON["/start"],
+        reply_markup=kb.LogInMenu
+        )
     users_data.setdefault(message.chat.id, None)
 
 
 @router.message(F.text == LEXICON_COMMANDS["to_main_menu"])
 async def main_menu_button(message: Message):
-    await message.answer(LEXICON["to_main_menu"], reply_markup=kb.StartMenu)
+    await message.answer(
+        text=LEXICON["to_main_menu"],
+        reply_markup=kb.StartMenu
+        )

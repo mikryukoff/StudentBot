@@ -1,9 +1,7 @@
 import json
-from datetime import datetime
 from itertools import zip_longest
 from dataclasses import dataclass
 
-import asyncio
 from async_property import async_property
 
 from selenium.webdriver import Remote
@@ -24,9 +22,6 @@ class ScheduleParser:
     browser: Remote
 
     account: None
-
-    # Дата для получения расписания в определенный день.
-    date: datetime = None
 
     # URL страницы с расписанием.
     url: str = 'https://urfu.modeus.org/schedule-calendar'
@@ -50,6 +45,7 @@ class ScheduleParser:
             text = f"{date}:\n\n"
 
             for time in day_schedule:
+
                 if not day_schedule[time]:
                     text += "Выходной"
                     return text
@@ -74,12 +70,14 @@ class ScheduleParser:
             schedule_iter = []
 
             for day in schedule:
+
                 if not schedule[day]:
                     continue
 
                 text = f"{day}:\n\n"
 
                 for time, lesson_name in schedule[day].items():
+
                     if not lesson_name:
                         continue
 
@@ -114,7 +112,9 @@ class ScheduleParser:
         self.browser.get(self.url)
 
         WebDriverWait(self.browser, 10).until(
-            EC.visibility_of_any_elements_located((By.CSS_SELECTOR, ".fc-title"))
+            EC.visibility_of_any_elements_located(
+                (By.CSS_SELECTOR, ".fc-title")
+            )
         )
 
         self.soup = BeautifulSoup(self.browser.page_source, "lxml")
@@ -127,16 +127,28 @@ class ScheduleParser:
 
         # Записываем в файл schedule.json расписание.
         with open(r"database\schedule.json", mode="w", encoding="utf-8") as json_file:
-            week_days = [day.text for day in self.soup.select(".fc-day-header span")]
+            week_days = [
+                day.text for day in self.soup.select(".fc-day-header span")
+                ]
+
             schedule_cols = self.soup.select(".fc-content-col")
 
             for day in week_days:
-                day_schedule = self.get_day_schedule(day_num=week_days.index(day), schedule_cols=schedule_cols)
-                schedule.setdefault(self.account.user_login, {}).setdefault(day, day_schedule)
+                day_schedule = self.get_day_schedule(
+                    day_num=week_days.index(day),
+                    schedule_cols=schedule_cols
+                    )
+                schedule.setdefault(
+                    self.account.user_login, {}
+                    ).setdefault(day, day_schedule)
 
             json.dump(schedule, json_file, ensure_ascii=False, indent=2)
 
-    def get_day_schedule(self, schedule_cols: list[BeautifulSoup], day_num: int) -> dict:
+    def get_day_schedule(
+            self,
+            schedule_cols: list[BeautifulSoup],
+            day_num: int
+            ) -> dict:
         '''
         По номеру дня недели возвращает полное расписание на день
         в виде словаря:
@@ -168,27 +180,38 @@ class ScheduleParser:
             subjects, classrooms, subjects_time,
             fillvalue=NoData
         ):
-            day_schedule.setdefault(time.text.zfill(13), (subject.text, classroom.text))
+            day_schedule.setdefault(
+                time.text.zfill(13), (subject.text, classroom.text)
+                )
 
         return day_schedule
 
     def _check_saved_file(self) -> bool:
         try:
+
             with open(r"database\schedule.json", "r", encoding="utf-8") as json_file:
                 schedule = json.load(json_file)
+
                 if self.account.user_login in schedule:
                     return True
+
                 return False
+
         except FileNotFoundError:
+
             with open(r"database\schedule.json", "w", encoding="utf-8") as json_file:
                 json.dump(dict(), json_file, ensure_ascii=False, indent=2)
                 return False
 
     async def _change_to_next_week(self) -> None:
-        self.browser.find_element(By.XPATH, "//span[@class='fc-icon fc-icon-right-single-arrow']").click()
+        self.browser.find_element(
+            By.XPATH, "//span[@class='fc-icon fc-icon-right-single-arrow']"
+            ).click()
 
         WebDriverWait(self.browser, 10).until(
-            EC.visibility_of_all_elements_located((By.CSS_SELECTOR, ".fc-title"))
+            EC.visibility_of_all_elements_located(
+                (By.CSS_SELECTOR, ".fc-title")
+            )
         )
 
     def __str__(self):

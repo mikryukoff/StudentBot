@@ -8,7 +8,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 
-import asyncio
 from aiohttp import ClientSession
 from async_property import async_property
 
@@ -57,7 +56,9 @@ class RatingParser:
                 scores = rating[i]
                 for j in scores:
                     text += f"{j}:\n"
-                    add_scores = "\n".join(re.split(r'(?=[А-Я])', scores[j].strip()))
+                    add_scores = "\n".join(
+                        re.split(r'(?=[А-Я])', scores[j].strip())
+                        )
                     text += f"{add_scores}\n"
 
             return text
@@ -82,7 +83,9 @@ class RatingParser:
                     scores = discipline_rating[i]
                     for j in scores:
                         text += f"{j}:\n"
-                        add_scores = "\n".join(re.split(r'(?=[А-Я])', scores[j].strip()))
+                        add_scores = "\n".join(
+                            re.split(r'(?=[А-Я])', scores[j].strip())
+                            )
                         text += f"{add_scores}\n"
 
                 rating_iter.append(text)
@@ -93,7 +96,9 @@ class RatingParser:
         async with ClientSession() as session:
 
             for cookie in self.cookies:
-                session.cookie_jar.update_cookies({cookie["name"]: cookie["value"]})
+                session.cookie_jar.update_cookies(
+                    {cookie["name"]: cookie["value"]}
+                    )
 
             async with session.get(self.url) as response:
                 soup = BeautifulSoup(await response.text(), "lxml")
@@ -105,8 +110,14 @@ class RatingParser:
 
         with open(r"database\rating.json", "w", encoding="utf-8") as json_file:
             for i in disciplines:
-                discipline, score = " ".join(i.text.split()[:-1]).split("Итоговая оценка:")
-                rating.setdefault(self.account.user_login, {}).setdefault(discipline.strip(), score.strip())
+
+                discipline, score = " ".join(
+                    i.text.split()[:-1]
+                    ).split("Итоговая оценка:")
+
+                rating.setdefault(
+                    self.account.user_login, {}
+                    ).setdefault(discipline.strip(), score.strip())
 
             json.dump(rating, json_file, ensure_ascii=False, indent=2)
 
@@ -114,60 +125,91 @@ class RatingParser:
         self.browser.get(self.url)
 
         WebDriverWait(self.browser, 10).until(
-            EC.visibility_of_any_elements_located((By.CLASS_NAME, "rating-discipline"))
+            EC.visibility_of_any_elements_located(
+                (By.CLASS_NAME, "rating-discipline")
+                )
         )
 
         actions = ActionChains(self.browser)
 
-        disciplines = self.browser.find_elements(By.CSS_SELECTOR, ".rating-discipline:not(.not-actual)")
+        disciplines = self.browser.find_elements(
+            By.CSS_SELECTOR,
+            ".rating-discipline:not(.not-actual)"
+            )
 
         for i in disciplines:
             actions.move_to_element(i).click(i).perform()
 
         soup = BeautifulSoup(self.browser.page_source, "lxml")
 
-        disciplines_name = [i.find_element(By.CLASS_NAME, "td-0").text.strip() for i in disciplines]
+        disciplines_name = [i.find_element(By.CLASS_NAME, "td-0").text.strip()
+                            for i in disciplines]
 
         with open(r"database\full_rating.json", "r", encoding="utf-8") as json_file:
             rating = json.load(json_file)
 
-        for discipline_rating, discipline_name in zip(soup.select(".rating-discipline-info.loaded"), disciplines_name):
+            discipline_data = zip(
+                soup.select(".rating-discipline-info.loaded"), disciplines_name
+                )
+
+        for discipline_rating, discipline_name in discipline_data:
+
             discipline_info = {}
             for chapter in discipline_rating.select('.mb-4:not([class*=" "])'):
 
                 if not chapter.text:
                     continue
 
-                chapter_name, chapter_rating = " ".join(chapter.find(class_="brs-h4").text.split()).split(":")
-                full_info = " ".join(chapter.find(class_="rating-marks").text.split())
+                chapter_name, chapter_rating = " ".join(
+                    chapter.find(class_="brs-h4").text.split()
+                    ).split(":")
 
-                discipline_info.setdefault(chapter_name, {}).setdefault(chapter_rating, full_info)
+                full_info = " ".join(
+                    chapter.find(class_="rating-marks").text.split()
+                    )
 
-            rating.setdefault(self.account.user_login, {}).setdefault(discipline_name, discipline_info)
+                discipline_info.setdefault(
+                    chapter_name, {}
+                    ).setdefault(chapter_rating, full_info)
+
+            rating.setdefault(
+                self.account.user_login, {}
+                ).setdefault(discipline_name, discipline_info)
 
         with open(r"database\full_rating.json", "w", encoding="utf-8") as json_file:
             json.dump(rating, json_file, ensure_ascii=False, indent=2)
 
     def _check_saved_file(self) -> bool:
         try:
+
             with open(r"database\rating.json", "r", encoding="utf-8") as json_file:
                 rating = json.load(json_file)
+
                 if self.account.user_login in rating:
                     return True
+
                 return False
+
         except FileNotFoundError:
+
             with open(r"database\rating.json", "w", encoding="utf-8") as json_file:
                 json.dump(dict(), json_file, ensure_ascii=False, indent=2)
+
                 return False
 
     def _check_full_saved_file(self) -> bool:
         try:
+
             with open(r"database\full_rating.json", "r", encoding="utf-8") as json_file:
                 rating = json.load(json_file)
+
                 if self.account.user_login in rating:
                     return True
+
                 return False
+
         except FileNotFoundError:
             with open(r"database\full_rating.json", "w", encoding="utf-8") as json_file:
                 json.dump(dict(), json_file, ensure_ascii=False, indent=2)
+
                 return False

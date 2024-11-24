@@ -17,27 +17,32 @@ router: Router = Router()
 @router.message(F.text == LEXICON_COMMANDS["authorisation"])
 async def authorisation(message: Message):
     if users_data[message.chat.id]:
-        await message.answer(LEXICON["already_auth"], reply_markup=kb.StartMenu)
+        await message.answer(
+            text=LEXICON["already_auth"],
+            reply_markup=kb.StartMenu
+            )
         return
 
-    await message.answer(LEXICON["log_in"])
+    await message.answer(text=LEXICON["log_in"])
 
 
 @router.message(F.text.contains("@"))
 async def login(message: Message):
     if users_data[message.chat.id]:
-        await message.answer(LEXICON["already_auth"])
+        await message.answer(text=LEXICON["already_auth"])
         return
 
     users_data[message.chat.id] = message.text
 
-    await message.answer(LEXICON["pass_in"])
+    await message.answer(text=LEXICON["pass_in"])
 
 
 # СДЕЛАТЬ НОРМАЛЬНУЮ ПРОВЕРКУ
 @router.message(lambda x: x.text not in LEXICON_COMMANDS.values())
 async def password(message: Message):
-    if not users_data[message.chat.id] or "@" not in users_data[message.chat.id]:
+    if (not users_data[message.chat.id] or
+       "@" not in users_data[message.chat.id]):
+
         await message.answer(LEXICON["incorrect_user_data"])
         return
 
@@ -51,7 +56,9 @@ async def password(message: Message):
     await message.answer(LEXICON["connecting_to_PA"])
 
     try:
-        account = await StudentAccount(login, password).driver
+        account = await StudentAccount(
+            user_login=login,
+            user_pass=password).driver
 
         users_data[message.chat.id] = {
             "account": account,
@@ -62,7 +69,13 @@ async def password(message: Message):
         }
 
     except IncorrectDataException:
-        await message.answer(LEXICON["incorrect_user_data"], reply_markup=kb.LogInMenu)
+        await message.answer(
+            text=LEXICON["incorrect_user_data"],
+            reply_markup=kb.LogInMenu
+            )
         users_data[message.chat.id] = None
     else:
-        await message.answer(LEXICON["successful_connection"], reply_markup=kb.StartMenu)
+        await message.answer(
+            text=LEXICON["successful_connection"],
+            reply_markup=kb.StartMenu
+            )

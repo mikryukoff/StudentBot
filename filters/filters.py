@@ -1,8 +1,6 @@
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
-import asyncio
-
 
 class DateFilter(BaseFilter):
     def __init__(self):
