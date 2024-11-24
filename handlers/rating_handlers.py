@@ -1,6 +1,8 @@
 import keyboards.menu_kb as kb
 from keyboards.pagination_kb import create_pagination_keyboard
 
+from filters import DisciplineFilter
+
 from database import users_data
 
 from lexicon import LEXICON, LEXICON_COMMANDS
@@ -10,6 +12,7 @@ from aiogram.types import Message, CallbackQuery
 
 
 router: Router = Router()
+disciplines = []
 
 
 @router.message(F.text == LEXICON_COMMANDS["rating"])
@@ -18,8 +21,25 @@ async def rating_menu(message: Message):
 
 
 @router.message(F.text == LEXICON_COMMANDS["discipline_rating"])
+async def discipline_rating_menu(message: Message):
+    global disciplines
+
+    rating = await users_data[message.chat.id]["rating"].full_disciplines_rating
+    disciplines.extend([i.split(":")[0] for i in rating])
+
+    await message.answer(
+        text=LEXICON["discipline_rating"],
+        reply_markup=kb.discipline_rating(disciplines=disciplines)
+        )
+
+
+@router.message(DisciplineFilter(disciplines=disciplines))
 async def send_discipline_rating(message: Message):
-    await message.answer(LEXICON["unvailable"])
+    msg = await message.answer(LEXICON["processing"])
+
+    discipline_rating = await users_data[message.chat.id]["rating"].discipline_rating(message.text)
+
+    await msg.edit_text(text=discipline_rating)
 
 
 @router.message(F.text == LEXICON_COMMANDS["short_rating"])

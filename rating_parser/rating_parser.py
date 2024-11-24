@@ -42,6 +42,26 @@ class RatingParser:
 
             return text
 
+    async def discipline_rating(self, discipline: str):
+        if not self._check_full_saved_file():
+            await self.save_full_disciplines_rating()
+
+        with open(r"database\full_rating.json", "r", encoding="utf-8") as json_file:
+            rating = json.load(json_file)
+            rating = rating[self.account.user_login][discipline]
+
+            text = f"{discipline}:\n"
+
+            for i in rating:
+                text += f"\n{i}:"
+                scores = rating[i]
+                for j in scores:
+                    text += f"{j}:\n"
+                    add_scores = "\n".join(re.split(r'(?=[А-Я])', scores[j].strip()))
+                    text += f"{add_scores}\n"
+
+            return text
+
     @async_property
     async def full_disciplines_rating(self):
         if not self._check_full_saved_file():

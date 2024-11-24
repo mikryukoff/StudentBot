@@ -10,3 +10,11 @@ class DateFilter(BaseFilter):
 
     async def __call__(self, message: Message) -> bool:
         return message.text.split()[0] in self.dates
+
+
+class DisciplineFilter(BaseFilter):
+    def __init__(self, disciplines: list):
+        self.disciplines = disciplines
+
+    async def __call__(self, message: Message) -> bool:
+        return message.text in self.disciplines

@@ -27,8 +27,8 @@ StartMenu = ReplyKeyboardMarkup(
 RatingMenu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="📝 Баллы по предмету"), 
-            KeyboardButton(text="📕 Все баллы кратко"), 
+            KeyboardButton(text="📝 Баллы по предмету"),
+            KeyboardButton(text="📕 Все баллы кратко"),
             KeyboardButton(text="📚 Все баллы подробно")
         ],
         [
@@ -43,7 +43,7 @@ RatingMenu = ReplyKeyboardMarkup(
 ScheduleMenu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="🗓 Расписание на неделю"), 
+            KeyboardButton(text="🗓 Расписание на неделю"),
             KeyboardButton(text="📆 Расписание на день")
         ],
         [
@@ -57,13 +57,7 @@ ScheduleMenu = ReplyKeyboardMarkup(
 
 
 def week_dates_keyboard(dates: list) -> ReplyKeyboardMarkup:
-    keyboard = list()
-    buttons = list()
-
-    for day in dates:
-        buttons.append(KeyboardButton(text=day))
-
-    keyboard.append(buttons)
+    keyboard = [[KeyboardButton(text=i) for i in dates]]
     keyboard.append([KeyboardButton(text="️🔙 В главное меню")])
 
     return ReplyKeyboardMarkup(
@@ -71,4 +65,16 @@ def week_dates_keyboard(dates: list) -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False,
         input_field_placeholder="Даты недели"
+        )
+
+
+def discipline_rating(disciplines: list) -> ReplyKeyboardMarkup:
+    keyboard = [[KeyboardButton(text=i)] for i in disciplines]
+    keyboard.append([KeyboardButton(text="️🔙 В главное меню")])
+
+    return ReplyKeyboardMarkup(
+        keyboard=keyboard,
+        resize_keyboard=True,
+        one_time_keyboard=False,
+        input_field_placeholder="Предметы"
         )
