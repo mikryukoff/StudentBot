@@ -32,12 +32,12 @@ def load_config(path: str | None = None) -> Config:
     options = [
         "--start-maximized",
         "--disable-blink-features=AutomationControlled",
-        "--disable-gpu",
-        "--headless",
         "--no-sandbox",
         f'--user-agent={UserAgent().random}',
         '--enable-unsafe-swiftshader',
-        '--disable-browser-side-navigation'
+        '--disable-browser-side-navigation',
+        # "--disable-gpu",
+        # "--headless"
     ]
 
     # Настройки Selenoid'а

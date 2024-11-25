@@ -1,10 +1,11 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from lexicon import LEXICON, LEXICON_COMMANDS
 
 
 LogInMenu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="✅ Авторизация"),
+            KeyboardButton(text=LEXICON_COMMANDS["authorisation"]),
         ]
     ],
     resize_keyboard=True,
@@ -15,8 +16,8 @@ LogInMenu = ReplyKeyboardMarkup(
 StartMenu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="📅 Расписание"),
-            KeyboardButton(text="📉 Баллы БРС")
+            KeyboardButton(text=LEXICON_COMMANDS["schedule"]),
+            KeyboardButton(text=LEXICON_COMMANDS["rating"])
         ]
     ],
     resize_keyboard=True,
@@ -27,12 +28,13 @@ StartMenu = ReplyKeyboardMarkup(
 RatingMenu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="📝 Баллы по предмету"),
-            KeyboardButton(text="📕 Все баллы кратко"),
-            KeyboardButton(text="📚 Все баллы подробно")
+            KeyboardButton(text=LEXICON_COMMANDS["discipline_rating"]),
+            KeyboardButton(text=LEXICON_COMMANDS["short_rating"]),
+            KeyboardButton(text=LEXICON_COMMANDS["full_rating"])
         ],
         [
-            KeyboardButton(text="️🔙 В главное меню")
+            KeyboardButton(text=LEXICON_COMMANDS["to_main_menu"]),
+            KeyboardButton(text=LEXICON_COMMANDS["update_rating"])
         ]
     ],
     resize_keyboard=True,
@@ -43,11 +45,12 @@ RatingMenu = ReplyKeyboardMarkup(
 ScheduleMenu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="🗓 Расписание на неделю"),
-            KeyboardButton(text="📆 Расписание на день")
+            KeyboardButton(text=LEXICON_COMMANDS["week_schedule"]),
+            KeyboardButton(text=LEXICON_COMMANDS["day_schedule"])
         ],
         [
-            KeyboardButton(text="️🔙 В главное меню")
+            KeyboardButton(text=LEXICON_COMMANDS["to_main_menu"]),
+            KeyboardButton(text=LEXICON_COMMANDS["update_schedule"]),
         ]
     ],
     resize_keyboard=True,
@@ -58,7 +61,7 @@ ScheduleMenu = ReplyKeyboardMarkup(
 
 def week_dates_keyboard(dates: list) -> ReplyKeyboardMarkup:
     keyboard = [[KeyboardButton(text=i) for i in dates]]
-    keyboard.append([KeyboardButton(text="️🔙 В главное меню")])
+    keyboard.append([KeyboardButton(text=LEXICON_COMMANDS["to_main_menu"])])
 
     return ReplyKeyboardMarkup(
         keyboard=keyboard,
@@ -70,7 +73,7 @@ def week_dates_keyboard(dates: list) -> ReplyKeyboardMarkup:
 
 def discipline_rating(disciplines: list) -> ReplyKeyboardMarkup:
     keyboard = [[KeyboardButton(text=i)] for i in disciplines]
-    keyboard.append([KeyboardButton(text="️🔙 В главное меню")])
+    keyboard.append([KeyboardButton(text=LEXICON_COMMANDS["to_main_menu"])])
 
     return ReplyKeyboardMarkup(
         keyboard=keyboard,

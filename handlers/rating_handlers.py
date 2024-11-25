@@ -156,3 +156,12 @@ async def press_backward_rating(callback: CallbackQuery):
     users_data[callback.from_user.id]["rating_page"] -= 1
 
     await callback.answer()
+
+
+@router.message(F.text == LEXICON_COMMANDS["update_rating"])
+async def update_student_rating(message: Message):
+    await message.answer(LEXICON["processing"])
+
+    users_data[message.chat.id]["account"].update_student_data(key="rating")
+
+    await message.answer(LEXICON["successful_updating"])

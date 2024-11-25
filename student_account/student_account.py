@@ -3,6 +3,7 @@ from schedule_parser import ScheduleParser
 from rating_parser import RatingParser
 
 from dataclasses import dataclass
+import json
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -70,6 +71,43 @@ class StudentAccount:
             self.browser.close()
             self.browser.quit()
             raise IncorrectDataException
+
+    def update_student_data(self, key: str) -> None:
+        methods = {
+            "rating": self.update_student_rating,
+            "schedule": self.update_student_schedule
+            }
+
+        methods[key]()
+
+    def update_student_schedule(self):
+        with open(r"database\schedule.json", mode="rb") as json_file:
+            schedule = json.load(json_file)
+
+            if self.user_login in schedule:
+                del schedule[self.user_login]
+
+        with open(r"database\schedule.json", mode="w", encoding="utf-8") as json_file:
+            json.dump(schedule, json_file, ensure_ascii=False, indent=2)
+
+    def update_student_rating(self):
+        with open(r"database\rating.json", mode="rb") as json_file:
+            rating = json.load(json_file)
+
+            if self.user_login in rating:
+                del rating[self.user_login]
+
+        with open(r"database\rating.json", "w", encoding="utf-8") as json_file:
+            json.dump(rating, json_file, ensure_ascii=False, indent=2)
+
+        with open(r"database\full_rating.json", "rb") as json_file:
+            rating = json.load(json_file)
+
+            if self.user_login in rating:
+                del rating[self.user_login]
+
+        with open(r"database\full_rating.json", "w", encoding="utf-8") as json_file:
+            json.dump(rating, json_file, ensure_ascii=False, indent=2)
 
     @property
     def schedule(self):

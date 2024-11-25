@@ -145,3 +145,12 @@ async def press_backward_schedule(callback: CallbackQuery):
     users_data[callback.from_user.id]["schedule_page"] -= 1
 
     await callback.answer()
+
+
+@router.message(F.text == LEXICON_COMMANDS["update_schedule"])
+async def update_student_rating(message: Message):
+    await message.answer(LEXICON["processing"])
+
+    users_data[message.chat.id]["account"].update_student_data(key="schedule")
+
+    await message.answer(LEXICON["successful_updating"])

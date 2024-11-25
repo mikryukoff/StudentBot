@@ -40,6 +40,8 @@ async def login(message: Message):
 # СДЕЛАТЬ НОРМАЛЬНУЮ ПРОВЕРКУ
 @router.message(lambda x: x.text not in LEXICON_COMMANDS.values())
 async def password(message: Message):
+    global password
+
     if (not users_data[message.chat.id] or
        "@" not in users_data[message.chat.id]):
 
