@@ -1,4 +1,6 @@
-*.json
+full_rating.json
+rating.json
+schedule.json
 __pycache__
 .mypy_cache
 TelegramBot

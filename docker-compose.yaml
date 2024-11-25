@@ -1,0 +1,41 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simple-app
+    depends_on:
+      - selenoid
+    network_mode: bridge
+    ports:
+      - "5000:5000"  # Проброс порта API
+    environment:
+      - SELENOID_URL=http://host.docker.internal:4444/wd/hub
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  selenoid:
+    image: aerokube/selenoid:latest-release
+    container_name: selenoid
+    network_mode: bridge
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./selenoid/config:/etc/selenoid/"
+    ports:
+      - "4444:4444"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  selenoid-ui:
+    image: aerokube/selenoid-ui:latest-release
+    container_name: selenoid-ui
+    network_mode: bridge
+    links:
+      - selenoid
+    ports:
+      - "8080:8080"
+    command:
+      - "--selenoid-uri"
+      - "http://host.docker.internal:4444"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

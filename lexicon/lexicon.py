@@ -31,6 +31,6 @@ LEXICON_COMMANDS: dict[str, str] = {
     "short_rating": "📕 Все баллы кратко",
     "full_rating": "📚 Все баллы подробно",
     "authorisation": "✅ Авторизация",
-    "update_schedule": "Обновить расписание",
-    "update_rating": "Обновить баллы"
+    "update_schedule": "🔄 Обновить расписание",
+    "update_rating": "🔄 Обновить баллы"
 }
