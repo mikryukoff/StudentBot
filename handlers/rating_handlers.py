@@ -28,12 +28,14 @@ async def rating_menu(message: Message):
 async def discipline_rating_menu(message: Message):
     global disciplines
 
+    msg = await message.answer(text=LEXICON["processing"])
+
     rating = users_data[message.chat.id]["rating"]
     rating = await rating.full_disciplines_rating
 
     disciplines.extend([i.split(":")[0] for i in rating])
 
-    await message.answer(
+    await msg.edit_text(
         text=LEXICON["discipline_rating"],
         reply_markup=kb.discipline_rating(disciplines=disciplines)
         )
@@ -160,8 +162,8 @@ async def press_backward_rating(callback: CallbackQuery):
 
 @router.message(F.text == LEXICON_COMMANDS["update_rating"])
 async def update_student_rating(message: Message):
-    await message.answer(LEXICON["processing"])
+    msg = await message.answer(text=LEXICON["processing"])
 
     users_data[message.chat.id]["account"].update_student_data(key="rating")
 
-    await message.answer(LEXICON["successful_updating"])
+    await msg.edit_text(text=LEXICON["successful_updating"])

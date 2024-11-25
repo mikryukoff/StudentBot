@@ -36,8 +36,8 @@ def load_config(path: str | None = None) -> Config:
         f'--user-agent={UserAgent().random}',
         '--enable-unsafe-swiftshader',
         '--disable-browser-side-navigation',
-        # "--disable-gpu",
-        # "--headless"
+        "--disable-gpu",
+        "--headless"
     ]
 
     # Настройки Selenoid'а
