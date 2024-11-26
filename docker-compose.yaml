@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: simple-app
+    container_name: student-bot
     depends_on:
       - selenoid
     network_mode: bridge

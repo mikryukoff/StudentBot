@@ -28,14 +28,14 @@ async def rating_menu(message: Message):
 async def discipline_rating_menu(message: Message):
     global disciplines
 
-    msg = await message.answer(text=LEXICON["processing"])
+    await message.answer(text=LEXICON["processing"])
 
     rating = users_data[message.chat.id]["rating"]
     rating = await rating.full_disciplines_rating
 
     disciplines.extend([i.split(":")[0] for i in rating])
 
-    await msg.edit_text(
+    await message.answer(
         text=LEXICON["discipline_rating"],
         reply_markup=kb.discipline_rating(disciplines=disciplines)
         )
