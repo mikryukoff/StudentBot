@@ -1,21 +1,21 @@
-# Базовый образ
-FROM python:3.13
+# Базовый образ с Python 3.13
+FROM python:3.13-slim
 
-# Keeps Python from generating .pyc files in the container
+# Отключение .pyc файлов и включение небуферизованного вывода
 ENV PYTHONDONTWRITEBYTECODE=1
-
-# Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
+
+# Рабочая директория внутри контейнера
+WORKDIR /app
+
+# Копирование файла requirements.txt
+COPY requirements.txt /app/
 
 # Установка зависимостей
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копирование программы
-COPY __main__.py /app/main.py
-WORKDIR /app
+# Копирование остальных файлов проекта
+COPY . /app/
 
-RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
-USER appuser
-
-# Команда запуска
+# Запуск приложения через __main__.py
 CMD ["python", "-m", "__main__"]
