@@ -53,7 +53,7 @@ docker pull selenoid/vnc_chrome:128.0
 
 **Проверка работы:**
 ```bash
-docker logs bot
+docker logs student-bot
 ```
 
 ## Настройка [Selenoid'а](https://github.com/aerokube/selenoid) и WebDriver'а:

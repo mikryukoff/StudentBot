@@ -1,9 +1,11 @@
 import keyboards.menu_kb as kb
 from keyboards.pagination_kb import create_pagination_keyboard
 
+from database import users_data
+
 from filters import DisciplineFilter
 
-from database import users_data
+from student_account import StudentAccount
 
 from lexicon import LEXICON, LEXICON_COMMANDS
 
@@ -163,6 +165,21 @@ async def press_backward_rating(callback: CallbackQuery):
 @router.message(F.text == LEXICON_COMMANDS["update_rating"])
 async def update_student_rating(message: Message):
     msg = await message.answer(text=LEXICON["processing"])
+
+    login = users_data[message.chat.id]["account"].user_login
+    password = users_data[message.chat.id]["account"].user_pass
+
+    account = await StudentAccount(
+        user_login=login,
+        user_pass=password).driver
+
+    users_data[message.chat.id] = {
+        "account": account,
+        "schedule": account.schedule,
+        "rating": account.rating,
+        "schedule_page": 0,
+        "rating_page": 0
+    }
 
     users_data[message.chat.id]["account"].update_student_data(key="rating")
 
