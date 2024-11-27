@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   app:
     build:
@@ -8,9 +10,16 @@ services:
       - selenoid
     network_mode: bridge
     ports:
-      - "5000:5000"  # Проброс порта API
+      - "5000:5000"
+    env_file:
+      - .env
     environment:
       - SELENOID_URL=http://host.docker.internal:4444/wd/hub
+      - DB_HOST=127.0.0.1
+      - DB_PORT=3306
+      - DB_NAME=db_bot
+      - DB_USER=root
+      - DB_PASSWORD="m~l3cl3rc_16!"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -21,6 +30,8 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./selenoid/config:/etc/selenoid/"
+    env_file:
+      - .env
     ports:
       - "4444:4444"
     extra_hosts:

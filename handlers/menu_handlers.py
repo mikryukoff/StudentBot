@@ -16,7 +16,7 @@ async def process_start_command(message: Message):
         text=LEXICON["/start"],
         reply_markup=kb.LogInMenu
         )
-    users_data.setdefault(message.chat.id, None)
+    users_data.setdefault(message.chat.id, {})
 
 
 @router.message(F.text == LEXICON_COMMANDS["to_main_menu"])

@@ -1,5 +1,8 @@
 import keyboards.menu_kb as kb
 
+from config_data.config import load_config
+from cipher import PassCipher
+
 from database import users_data
 
 from lexicon import LEXICON, LEXICON_COMMANDS
@@ -12,6 +15,8 @@ from aiogram.types import Message
 
 
 router: Router = Router()
+config = load_config()
+cipher: PassCipher = PassCipher(config.user_data.secret_key)
 
 
 @router.message(F.text == LEXICON_COMMANDS["authorisation"])
@@ -32,27 +37,24 @@ async def login(message: Message):
         await message.answer(text=LEXICON["already_auth"])
         return
 
-    users_data[message.chat.id] = message.text
+    users_data[message.chat.id]["login"] = message.text
 
     await message.answer(text=LEXICON["pass_in"])
 
 
 # СДЕЛАТЬ НОРМАЛЬНУЮ ПРОВЕРКУ
-@router.message(lambda x: x.text not in LEXICON_COMMANDS.values())
+@router.message(
+        lambda x: x.text not in LEXICON_COMMANDS.values() and "📌" not in x.text
+        )
 async def password(message: Message):
-    global password
 
-    if (not users_data[message.chat.id] or
-       "@" not in users_data[message.chat.id]):
+    if (not users_data[message.chat.id]["login"] or
+       "@" not in users_data[message.chat.id]["login"]):
 
         await message.answer(LEXICON["incorrect_user_data"])
         return
 
-    if isinstance(users_data[message.chat.id], dict):
-        await message.answer(LEXICON["already_auth"])
-        return
-
-    login = users_data[message.chat.id]
+    login = users_data[message.chat.id]["login"]
     password = message.text
 
     await message.answer(LEXICON["connecting_to_PA"])
@@ -62,7 +64,7 @@ async def password(message: Message):
             user_login=login,
             user_pass=password).driver
 
-        users_data[message.chat.id] = {
+        users_data[message.chat.id]["data"] = {
             "account": account,
             "schedule": account.schedule,
             "rating": account.rating,
@@ -75,9 +77,11 @@ async def password(message: Message):
             text=LEXICON["incorrect_user_data"],
             reply_markup=kb.LogInMenu
             )
-        users_data[message.chat.id] = None
+        users_data[message.chat.id] = {}
     else:
         await message.answer(
             text=LEXICON["successful_connection"],
             reply_markup=kb.StartMenu
             )
+
+        users_data[message.chat.id]["password"] = cipher.encrypt_password(message.text)

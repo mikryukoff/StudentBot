@@ -4,7 +4,12 @@ from fake_useragent import UserAgent
 from environs import Env
 
 
-# Конфиг webvdriver'а
+@dataclass
+class UserData:
+    secret_key: str | bytes
+
+
+# Конфиг webdriver'а
 @dataclass
 class WebDriver:
     options: list
@@ -22,6 +27,7 @@ class TgBot:
 class Config:
     webdriver: WebDriver
     tg_bot: TgBot
+    user_data: UserData
 
 
 def load_config(path: str | None = None) -> Config:
@@ -56,5 +62,6 @@ def load_config(path: str | None = None) -> Config:
             capability=capability,
             selenoid_url=env("SELENOID_URL")
         ),
-        tg_bot=TgBot(token=env("BOT_TOKEN"))
+        tg_bot=TgBot(token=env("BOT_TOKEN")),
+        user_data=UserData(secret_key=env("SECRET_KEY"))
     )

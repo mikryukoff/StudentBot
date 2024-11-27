@@ -1,6 +1,9 @@
 import keyboards.menu_kb as kb
 from keyboards.pagination_kb import create_pagination_keyboard
 
+from config_data.config import load_config
+from cipher import PassCipher
+
 from database import users_data
 
 from filters import DisciplineFilter
@@ -14,6 +17,10 @@ from aiogram.types import Message, CallbackQuery
 
 
 router: Router = Router()
+
+config = load_config()
+cipher: PassCipher = PassCipher(config.user_data.secret_key)
+
 disciplines: list = []
 pages: list = []
 rating: list = []
@@ -33,10 +40,11 @@ async def discipline_rating_menu(message: Message):
 
     await message.answer(text=LEXICON["processing"])
 
-    rating = users_data[message.chat.id]["rating"]
+    rating = users_data[message.chat.id]["data"]["rating"]
     rating = await rating.full_disciplines_rating
 
-    disciplines.extend([i.split(":")[0] for i in rating])
+    if not disciplines:
+        disciplines.extend([f"📌{i.split(":")[0]}" for i in rating])
 
     await message.answer(
         text=LEXICON["discipline_rating"],
@@ -48,8 +56,10 @@ async def discipline_rating_menu(message: Message):
 async def send_discipline_rating(message: Message):
     msg = await message.answer(text=LEXICON["processing"])
 
-    discipline_rating = users_data[message.chat.id]["rating"]
-    discipline_rating = await discipline_rating.discipline_rating(message.text)
+    discipline = message.text[1:]
+
+    discipline_rating = users_data[message.chat.id]["data"]["rating"]
+    discipline_rating = await discipline_rating.discipline_rating(discipline)
 
     await msg.edit_text(text=discipline_rating)
 
@@ -58,7 +68,7 @@ async def send_discipline_rating(message: Message):
 async def send_short_rating(message: Message):
     msg = await message.answer(text=LEXICON["processing"])
 
-    rating = users_data[message.chat.id]["rating"]
+    rating = users_data[message.chat.id]["data"]["rating"]
     rating = await rating.short_disciplines_rating
 
     await msg.edit_text(text=rating)
@@ -71,11 +81,11 @@ async def send_full_rating(message: Message):
 
     await message.answer(LEXICON["processing"])
 
-    rating = users_data[message.chat.id]["rating"]
-    rating = await rating.full_pages_rating
+    rating = users_data[message.chat.id]["data"]["rating"]
+    rating = await rating.full_disciplines_rating
 
     pages = [str(i) for i in range(1, len(rating) + 1)]
-    page = users_data[message.chat.id]["rating_page"]
+    page = users_data[message.chat.id]["data"]["rating_page"]
 
     if page != len(pages) - 1 and page != 0:
 
@@ -109,7 +119,7 @@ async def press_forward_rating(callback: CallbackQuery):
     global rating
     global pages
 
-    page = users_data[callback.from_user.id]["rating_page"]
+    page = users_data[callback.from_user.id]["data"]["rating_page"]
 
     if page + 1 < len(pages) - 1:
 
@@ -128,7 +138,7 @@ async def press_forward_rating(callback: CallbackQuery):
                 )
             )
 
-    users_data[callback.from_user.id]["rating_page"] += 1
+    users_data[callback.from_user.id]["data"]["rating_page"] += 1
 
     await callback.answer()
 
@@ -138,7 +148,7 @@ async def press_backward_rating(callback: CallbackQuery):
     global rating
     global pages
 
-    page = users_data[callback.from_user.id]["rating_page"]
+    page = users_data[callback.from_user.id]["data"]["rating_page"]
 
     if page - 1 > 0:
 
@@ -158,7 +168,7 @@ async def press_backward_rating(callback: CallbackQuery):
                 )
             )
 
-    users_data[callback.from_user.id]["rating_page"] -= 1
+    users_data[callback.from_user.id]["data"]["rating_page"] -= 1
 
     await callback.answer()
 
@@ -167,14 +177,14 @@ async def press_backward_rating(callback: CallbackQuery):
 async def update_student_rating(message: Message):
     msg = await message.answer(text=LEXICON["processing"])
 
-    login = users_data[message.chat.id]["account"].user_login
-    password = users_data[message.chat.id]["account"].user_pass
+    login = users_data[message.chat.id]["login"]
+    password = cipher.decrypt_password(users_data[message.chat.id]["password"])
 
     account = await StudentAccount(
         user_login=login,
         user_pass=password).driver
 
-    users_data[message.chat.id] = {
+    users_data[message.chat.id]["data"] = {
         "account": account,
         "schedule": account.schedule,
         "rating": account.rating,
@@ -182,6 +192,6 @@ async def update_student_rating(message: Message):
         "rating_page": 0
     }
 
-    users_data[message.chat.id]["account"].update_student_data(key="rating")
+    users_data[message.chat.id]["data"]["account"].update_student_data(key="rating")
 
     await msg.edit_text(text=LEXICON["successful_updating"])

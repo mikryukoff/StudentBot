@@ -1,6 +1,9 @@
 import keyboards.menu_kb as kb
 from keyboards.pagination_kb import create_pagination_keyboard
 
+from config_data.config import load_config
+from cipher import PassCipher
+
 from database import users_data
 
 from filters import DateFilter
@@ -14,6 +17,10 @@ from aiogram.types import Message, CallbackQuery
 
 
 router: Router = Router()
+
+config = load_config()
+cipher: PassCipher = PassCipher(config.user_data.secret_key)
+
 schedule: list = []
 week_days: list = []
 
@@ -28,11 +35,17 @@ async def schedule_menu(message: Message):
 
 @router.message(F.text == LEXICON_COMMANDS["day_schedule"])
 async def day_schedule_menu(message: Message):
+    msg = await message.answer(LEXICON["processing"])
 
-    schedule = users_data[message.chat.id]["schedule"]
+    schedule = users_data[message.chat.id]["data"]["schedule"]
     schedule = await schedule.week_schedule
 
     week_days = [i.split("\n\n")[0].strip(":") for i in schedule]
+
+    await message.bot.delete_message(
+        chat_id=msg.chat.id,
+        message_id=msg.message_id
+        )
 
     await message.answer(
         LEXICON["day_schedule"],
@@ -44,7 +57,7 @@ async def day_schedule_menu(message: Message):
 async def send_day_schedule(message: Message):
     msg = await message.answer(LEXICON["processing"])
 
-    day_schedule = users_data[message.chat.id]["schedule"]
+    day_schedule = users_data[message.chat.id]["data"]["schedule"]
     day_schedule = await day_schedule.day_schedule(date=message.text)
 
     await msg.edit_text(text=day_schedule)
@@ -57,11 +70,11 @@ async def send_week_schedule(message: Message):
 
     await message.answer(LEXICON["processing"])
 
-    schedule = users_data[message.chat.id]["schedule"]
+    schedule = users_data[message.chat.id]["data"]["schedule"]
     schedule = await schedule.week_schedule
 
     week_days = [i.split("\n\n")[0].strip(":") for i in schedule]
-    page = users_data[message.chat.id]["schedule_page"]
+    page = users_data[message.chat.id]["data"]["schedule_page"]
 
     if page != len(week_days) - 1 and page != 0:
 
@@ -95,7 +108,7 @@ async def press_forward_schedule(callback: CallbackQuery):
     global schedule
     global week_days
 
-    page = users_data[callback.from_user.id]["schedule_page"]
+    page = users_data[callback.from_user.id]["data"]["schedule_page"]
 
     if page + 1 < len(week_days) - 1:
 
@@ -114,7 +127,7 @@ async def press_forward_schedule(callback: CallbackQuery):
                 )
             )
 
-    users_data[callback.from_user.id]["schedule_page"] += 1
+    users_data[callback.from_user.id]["data"]["schedule_page"] += 1
 
     await callback.answer()
 
@@ -124,7 +137,7 @@ async def press_backward_schedule(callback: CallbackQuery):
     global schedule
     global week_days
 
-    page = users_data[callback.from_user.id]["schedule_page"]
+    page = users_data[callback.from_user.id]["data"]["schedule_page"]
 
     if page - 1 > 0:
 
@@ -144,7 +157,7 @@ async def press_backward_schedule(callback: CallbackQuery):
                 )
             )
 
-    users_data[callback.from_user.id]["schedule_page"] -= 1
+    users_data[callback.from_user.id]["data"]["schedule_page"] -= 1
 
     await callback.answer()
 
@@ -153,14 +166,14 @@ async def press_backward_schedule(callback: CallbackQuery):
 async def update_student_rating(message: Message):
     msg = await message.answer(text=LEXICON["processing"])
 
-    login = users_data[message.chat.id]["account"].user_login
-    password = users_data[message.chat.id]["account"].user_pass
+    login = users_data[message.chat.id]["login"]
+    password = cipher.decrypt_password(users_data[message.chat.id]["password"])
 
     account = await StudentAccount(
         user_login=login,
         user_pass=password).driver
 
-    users_data[message.chat.id] = {
+    users_data[message.chat.id]["data"] = {
         "account": account,
         "schedule": account.schedule,
         "rating": account.rating,
@@ -168,6 +181,6 @@ async def update_student_rating(message: Message):
         "rating_page": 0
     }
 
-    users_data[message.chat.id]["account"].update_student_data(key="schedule")
+    users_data[message.chat.id]["data"]["account"].update_student_data(key="schedule")
 
     await msg.edit_text(text=LEXICON["successful_updating"])
