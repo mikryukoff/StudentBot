@@ -64,101 +64,51 @@ docker logs student-bot
 
 ```plaintext
 StudentBot/
-├── cipher/
-│   ├── init.py
-│   └── cipher.py
-├── config_data/
-│   ├── init.py
-│   └── config.py
-├── database/
-│   ├── init.py
-│   └── data.json
-├── filters/
-│   ├── init.py
-│   └── filters.py
-├── handlers/
-│   ├── init.py
-│   └── handlers.py
-├── keyboards/
-│   ├── init.py
-│   └── keyboards.py
-├── lexicon/
-│   ├── init.py
-│   └── lexicon.py
-├── rating_parser/
-│   ├── init.py
-│   └── parser.py
-├── schedule_parser/
-│   ├── init.py
-│   └── parser.py
-├── selenoid/
-│   ├── config/
-│   │   └── browsers.json
-│   ├── cm_linux_amd64
-│   ├── cm_darwin_amd64
-│   ├── cm_darwin_arm64
-│   └── cm_windows_amd64.exe
-├── student_account/
-│   ├── init.py
-│   └── account.py
-├── tools/
-│   ├── init.py
-│   └── tools.py
-├── .env.example
-├── .gitignore
-├── Dockerfile
-├── README.md
-├── main.py
-├── docker-compose.yaml
-└── requirements.txt
+├── cipher/                         # Модули для шифрования данных
+│   ├── __init__.py                 # Инициализация пакета
+│   └── cipher.py                   # Реализация функций шифрования
+├── config_data/                    # Файлы конфигурации
+│   └── config.py                   # Основные настройки приложения
+├── database/                       # Хранение данных
+│   ├── __init__.py                 # Инициализация пакета
+│   └── database.py                 # Реализация БД
+├── filters/                        # Фильтры для обработки данных
+│   ├── __init__.py                 # Инициализация пакета
+│   └── filters.py                  # Реализация фильтров
+├── handlers/                       # Обработчики событий
+|   ├── auth_handlers.py            # Обработчик авторизации
+|   ├── menu_handlers.py            # Обработчик стартового меню
+|   ├── rating_handlers.py          # Обработчик работы с баллами
+|   └── schedule_handlers.py        # Обработчик работы с расписанием
+├── keyboards/                      # Пользовательские клавиатуры
+│   ├── menu_kb.py                  # Определение кнопок меню
+|   └── pagination_kb.py            # Определение пагинации
+├── lexicon/                        # Каталог команд
+│   ├── __init__.py                 # Инициализация пакета
+│   └── lexicon.py                  # Команды и ответы бота
+├── rating_parser/                  # Парсинг рейтингов
+│   ├── __init__.py                 # Инициализация пакета
+│   └── rating_parser.py            # Парсер баллов БРС
+├── schedule_parser/                # Парсинг расписания
+│   ├── __init__.py                 # Инициализация пакета
+│   └── schedule_parser.py          # Парсер расписания
+├── selenoid/                       # Конфигурация Selenoid
+│   └── config/                     # Настройки Selenoid
+│       ├── browsers.json           # Настройки браузеров для Selenoid
+├── student_account/                # Инициализатор драйвера Selenium
+│   ├── __init__.py                 # Инициализация пакета
+│   ├── exceptions.py               # Вспомогательные исключения
+│   └── student_account.py          # Драйвер Selenium с настройками и авторизацией
+├── tools/                          # Установщики Selenoid
+│   ├── cm_linux_amd64              # Утилита для Linux
+│   ├── cm_darwin_amd64             # Утилита для macOS (Intel)
+│   ├── cm_darwin_arm64             # Утилита для macOS (M1/M2)
+│   └── cm_windows_amd64.exe        # Утилита для Windows
+├── __main__.py                     # Основной исполняемый файл бота
+├── .env.example                    # Пример файла с переменными окружения
+├── .gitignore                      # Файлы и каталоги, игнорируемые Git
+├── docker-compose.yaml             # Конфигурация для Docker Compose
+├── Dockerfile                      # Инструкция для сборки Docker-образа
+├── README.md                       # Описание проекта
+└── requirements.txt                # Список зависимостей проекта
 ```
-
-**Описание схемы каталогов**
-
-cipher/: модули для шифрования данных.
-__init__.py: инициализация пакета.
-cipher.py: реализация функций шифрования.
-config_data/: файлы конфигурации.
-__init__.py: инициализация пакета.
-config.py: основные настройки приложения.
-database/: хранение данных.
-__init__.py: инициализация пакета.
-data.json: файл с данными в формате JSON.
-filters/: фильтры для обработки данных.
-__init__.py: инициализация пакета.
-filters.py: реализация фильтров.
-handlers/: обработчики событий.
-__init__.py: инициализация пакета.
-handlers.py: обработка различных событий.
-keyboards/: пользовательские клавиатуры.
-__init__.py: инициализация пакета.
-keyboards.py: определение клавиатур.
-lexicon/: языковые ресурсы.
-__init__.py: инициализация пакета.
-lexicon.py: словари и текстовые ресурсы.
-rating_parser/: парсинг рейтингов.
-__init__.py: инициализация пакета.
-parser.py: логика парсинга рейтингов.
-schedule_parser/: парсинг расписания.
-__init__.py: инициализация пакета.
-parser.py: логика парсинга расписания.
-selenoid/: конфигурация Selenoid.
-config/:
-browsers.json: настройки браузеров для Selenoid.
-cm_linux_amd64: утилита для Linux.
-cm_darwin_amd64: утилита для macOS (Intel).
-cm_darwin_arm64: утилита для macOS (M1/M2).
-cm_windows_amd64.exe: утилита для Windows.
-student_account/: учетные записи студентов.
-__init__.py: инициализация пакета.
-account.py: управление учетными записями.
-tools/: вспомогательные утилиты.
-__init__.py: инициализация пакета.
-tools.py: различные инструменты.
-.env.example: пример файла с переменными окружения.
-.gitignore: файлы и каталоги, игнорируемые Git.
-Dockerfile: инструкция для сборки Docker-образа.
-README.md: описание проекта.
-__main__.py: основной исполняемый файл бота.
-docker-compose.yaml: конфигурация для Docker Compose.
-requirements.txt: список зависимостей проекта.
