@@ -1,27 +1,38 @@
+# Импорты библиотек и модулей
 from aiogram import F, Router
-from lexicon import LEXICON, LEXICON_COMMANDS
 from aiogram.types import Message
-import keyboards.menu_kb as kb
 from aiogram.filters import CommandStart
+
+# Импорты пользовательских модулей
+from lexicon import LEXICON, LEXICON_COMMANDS
+
+import keyboards.menu_kb as kb
+
 from database import users_data
 
 
+# Инициализация роутера
 router: Router = Router()
 
 
-# Команда "/start"
+# Обработчик команды "/start"
 @router.message(CommandStart())
 async def process_start_command(message: Message):
+    # Отправляем приветственное сообщение и показываем меню входа
     await message.answer(
         text=LEXICON["/start"],
         reply_markup=kb.LogInMenu
-        )
+    )
+
+    # Инициализируем пустой словарь для данных пользователя, если его ещё нет
     users_data.setdefault(message.chat.id, {})
 
 
+# Обработчик кнопки "В главное меню"
 @router.message(F.text == LEXICON_COMMANDS["to_main_menu"])
 async def main_menu_button(message: Message):
+    # Отправляем сообщение и показываем главное меню
     await message.answer(
         text=LEXICON["to_main_menu"],
         reply_markup=kb.StartMenu
-        )
+    )
