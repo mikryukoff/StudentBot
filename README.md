@@ -157,3 +157,20 @@ StudentBot/
 ├── README.md                       # Описание проекта
 └── requirements.txt                # Список зависимостей проекта
 ```
+
+
+## Контакты
+
+### Реализация бота:
+
+- Автор: Микрюков Денис Алексеевич РИ-230931
+- telegram: https://t.me/mikryukoff17
+- VK: https://vk.com/mikryukoff17
+- Email: den20011709@gmail.com
+
+### Реализация базы данных:
+
+- Автор: Рябов Михаил Сергеевич РИ-230916
+- telegram: https://t.me/not_ryaba
+- Email: not_ryaba@gmail.com
+- GitHub: https://github.com/ryabov3
