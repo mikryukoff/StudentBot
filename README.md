@@ -95,17 +95,17 @@ tools/cm_windows_amd64.exe selenoid start --vnc --tmpfs 128
 
 ### Сборка и запуск Docker'а:
 
-**Сборка и запуск:**
+- Сборка и запуск:
 ```bash
 docker-compose up --build -d
 ```
 
-**Убедитесь, что образ Chrome существует:**
+- Убедитесь, что образ Chrome существует:
 ```bash
 docker pull selenoid/vnc_chrome:128.0
 ```
 
-**Проверка работы:**
+- Проверка работы:
 ```bash
 docker logs student-bot
 ```
