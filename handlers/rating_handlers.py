@@ -6,7 +6,9 @@ from config_data.config import load_config
 
 from cipher import PassCipher
 
-from database import users_data
+# Импорт инициализатора таблиц БД, словарь для хранения страниц и типы
+from database import initialize_databases, users_data
+from database import WeeklySchedule, Grades, Users
 
 from filters import DisciplineFilter
 
@@ -30,10 +32,27 @@ disciplines: list = []    # Список дисциплин
 pages: list = []          # Список страниц
 rating_list: list = []    # Список рейтингов
 
+# Инициализируем кортеж с таблицами
+tables: tuple[Users, Grades, WeeklySchedule] = ()
+
 
 # Меню баллов БРС
 @router.message(F.text == LEXICON_COMMANDS["rating"])
 async def rating_menu(message: Message):
+    global tables
+    global disciplines
+
+    tables = await initialize_databases()
+
+    if not disciplines:
+        grades_table = tables[1]
+
+        # Формируем список дисциплин
+        data = await grades_table.select_name_subjects(
+            chat_id=message.chat.id
+        )
+        disciplines.extend([f"📌{i}" for i in data])
+
     # Отправляем пользователю меню с кнопками для работы с баллами
     await message.answer(
         text=LEXICON["rating"],
@@ -45,17 +64,9 @@ async def rating_menu(message: Message):
 @router.message(F.text == LEXICON_COMMANDS["discipline_rating"])
 async def discipline_rating_menu(message: Message):
     global disciplines
+    global tables
 
     await message.answer(text=LEXICON["processing"])
-
-    # Сохраняем в переменную объект RatingParser
-    # и вызываем метод для загрузки баллов по всем предметам
-    rating = users_data[message.chat.id]["data"]["rating"]
-    rating = await rating.full_disciplines_rating
-
-    # Формируем список дисциплин
-    if not disciplines:
-        disciplines.extend([f"📌{i.split(':')[0]}" for i in rating])
 
     # Отправляем пользователю меню с выбором предметов,
     # по которым он хочет видеть свои баллы
@@ -68,31 +79,49 @@ async def discipline_rating_menu(message: Message):
 # Отправка рейтинга по дисциплине
 @router.message(DisciplineFilter(disciplines=disciplines))
 async def send_discipline_rating(message: Message):
+    global tables
+
+    grades_table = tables[1]
+
     msg = await message.answer(text=LEXICON["processing"])
 
-    discipline = message.text[1:]  # Убираем 📌 из текста
+    discipline = message.text[1:]    # Убираем 📌 из текста
 
-    # Сохраняем в переменную объект RatingParser
-    # и вызываем метод для загрузки баллов по выбранному предмету
-    discipline_rating = users_data[message.chat.id]["data"]["rating"]
-    discipline_rating = await discipline_rating.discipline_rating(discipline)
+    _, discipline_rating = await grades_table.select_grades(
+        chat_id=message.chat.id,
+        subject=discipline
+    )
+
+    text = f"{discipline}\n\n"
+    for component, score in discipline_rating:
+        text += f"{component}: {score}\n"
 
     # Отправляем баллы по выбранному предмету
-    await msg.edit_text(text=discipline_rating)
+    await msg.edit_text(text=text)
 
 
 # Отправка краткого рейтинга
 @router.message(F.text == LEXICON_COMMANDS["short_rating"])
 async def send_short_rating(message: Message):
+    global tables
+    global disciplines
+
     msg = await message.answer(text=LEXICON["processing"])
 
-    # Сохраняем в переменную объект RatingParser
-    # и вызываем метод для загрузки краткой информации по баллам предметов
-    rating = users_data[message.chat.id]["data"]["rating"]
-    rating = await rating.short_disciplines_rating
+    grades_table = tables[1]
+
+    text = ""
+    for subject in disciplines:
+        text += f"{subject}: "
+        _, scores = await grades_table.select_grades(
+            chat_id=message.chat.id,
+            subject=subject[1:]
+        )
+        component, score = scores[0]
+        text += f"{component}: {score}\n\n"
 
     # Отправляем краткую информацию по баллам предметов
-    await msg.edit_text(text=rating)
+    await msg.edit_text(text=text)
 
 
 # Отправка полного рейтинга с пагинацией
@@ -100,17 +129,35 @@ async def send_short_rating(message: Message):
 async def send_full_rating(message: Message):
     global rating_list
     global pages
+    global tables
+    global disciplines
 
     await message.answer(LEXICON["processing"])
 
-    # Сохраняем в переменную объект RatingParser
-    # и вызываем метод для загрузки баллов по всем предметам
-    rating = users_data[message.chat.id]["data"]["rating"]
-    rating_list = await rating.full_disciplines_rating
+    grades_table = tables[1]
+
+    if not disciplines:
+        # Формируем список дисциплин
+        disciplines = await grades_table.select_name_subjects(
+            chat_id=message.chat.id
+        )
+        disciplines = [f"📌{i}" for i in disciplines]
+
+    for subject in disciplines:
+        text = f"{subject}: \n\n"
+        _, scores = await grades_table.select_grades(
+            chat_id=message.chat.id,
+            subject=subject[1:]
+        )
+        for component, score in scores:
+            text += f"{component}: {score}\n"
+
+        text += "\n"
+        rating_list.append(text)
 
     # Формируем номера страниц и записываем текущую
-    pages = [str(i) for i in range(1, len(rating_list) + 1)]
-    page = users_data[message.chat.id]["data"]["rating_page"]
+    pages = [str(i) for i in range(1, len(disciplines) + 1)]
+    page = users_data[message.chat.id]["rating_page"]
 
     # Пагинация в зависимости от текущей страницы
     if page != len(pages) - 1 and page != 0:
@@ -143,7 +190,7 @@ async def press_forward_rating(callback: CallbackQuery):
     global pages
 
     # Текущая страница
-    page = users_data[callback.from_user.id]["data"]["rating_page"]
+    page = users_data[callback.from_user.id]["rating_page"]
 
     # Пагинация в зависимости от текущей страницы
     if page + 1 < len(pages) - 1:
@@ -162,7 +209,7 @@ async def press_forward_rating(callback: CallbackQuery):
         )
 
     # Сохраняем в базу, что пользователь перешёл на следующую страницу
-    users_data[callback.from_user.id]["data"]["rating_page"] += 1
+    users_data[callback.from_user.id]["rating_page"] += 1
 
     await callback.answer()
 
@@ -174,7 +221,7 @@ async def press_backward_rating(callback: CallbackQuery):
     global pages
 
     # Текущая страница
-    page = users_data[callback.from_user.id]["data"]["rating_page"]
+    page = users_data[callback.from_user.id]["rating_page"]
 
     # Пагинация в зависимости от текущей страницы
     if page - 1 > 0:
@@ -193,7 +240,7 @@ async def press_backward_rating(callback: CallbackQuery):
         )
 
     # Сохраняем в базу, что пользователь перешёл на предыдущую страницу
-    users_data[callback.from_user.id]["data"]["rating_page"] -= 1
+    users_data[callback.from_user.id]["rating_page"] -= 1
 
     await callback.answer()
 
@@ -201,29 +248,32 @@ async def press_backward_rating(callback: CallbackQuery):
 # Обновление рейтинга пользователя
 @router.message(F.text == LEXICON_COMMANDS["update_rating"])
 async def update_student_rating(message: Message):
+    global tables
+
+    users_table = tables[0]
+
     msg = await message.answer(text=LEXICON["processing"])
 
     # Записываем логин и пароль пользователя
     # Пароль дешифруем для авторизации
-    login = users_data[message.chat.id]["login"]
-    password = cipher.decrypt_password(users_data[message.chat.id]["password"])
+    login, password, _ = await users_table.select_user_data(
+        chat_id=message.chat.id
+    )
+    password = cipher.decrypt_password(password)
 
     # Обновляем сессию
     account = await StudentAccount(
         user_login=login,
-        user_pass=password
+        user_pass=password,
+        chat_id=message.chat.id
     ).driver
 
     # Обновляем данные пользователя
-    users_data[message.chat.id]["data"] = {
-        "account": account,              # Данные аккаунта
-        "schedule": account.schedule,    # Объект для работы с расписанием
-        "rating": account.rating,        # Объект для работы с баллами
+    users_data[message.chat.id] = {
         "schedule_page": 0,              # Страница расписания
         "rating_page": 0                 # Страница рейтинга
     }
 
-    # Обновляем информацию по баллам в базе
-    users_data[message.chat.id]["data"]["account"].update_student_data(key="rating")
+    await account.rating.full_disciplines_rating(key="update")
 
     await msg.edit_text(text=LEXICON["successful_updating"])

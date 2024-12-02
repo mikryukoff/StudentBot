@@ -15,11 +15,6 @@ services:
       - .env
     environment:
       - SELENOID_URL=http://host.docker.internal:4444/wd/hub
-      - DB_HOST=127.0.0.1
-      - DB_PORT=3306
-      - DB_NAME=db_bot
-      - DB_USER=root
-      - DB_PASSWORD="m~l3cl3rc_16!"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

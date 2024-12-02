@@ -5,6 +5,17 @@ FROM python:3.13-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# Установка локалей
+RUN apt-get update && apt-get install -y locales && \
+    echo "ru_RU.UTF-8 UTF-8" > /etc/locale.gen && \
+    locale-gen && \
+    update-locale LANG=ru_RU.UTF-8
+
+# Установка переменных окружения для локали
+ENV LANG ru_RU.UTF-8
+ENV LANGUAGE ru_RU:ru
+ENV LC_ALL ru_RU.UTF-8
+
 # Рабочая директория внутри контейнера
 WORKDIR /app
 

@@ -5,7 +5,7 @@
 - Бот подключается к личному кабинету студента через авторизацию по паролю и логину, откуда парсит расписание и баллы БРС.
 - Парсинг происходит с помощью Selenium.WebDriver'а, который запускает браузер и имитирует действия пользователя на сайте для прогрузки Java-скриптов.
 - [Selenoid](https://github.com/aerokube/selenoid) изолированно запускает браузеры в Docker-контейнерах, что позволяет параллельно работать с несколькими браузерами.
-- Пока бот хранит данные в json файлах в папке database. Сейчас идёт работа над подключением SQL.
+- Все данные бот хранит в БД, код которой в database/database.sql
 
 ## Установка
 
@@ -37,7 +37,9 @@ source venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-**4. Создайте файл .env в корне проекта с необходимыми переменными окружения (пример ниже).**
+**4. Установите базу данных SQL. Запустите запрос из database/database.sql**
+
+**5. Создайте файл .env в корне проекта с необходимыми переменными окружения (пример ниже).**
 
 ## Настройка
 
@@ -48,6 +50,10 @@ pip install -r requirements.txt
 BOT_TOKEN="4342342335:AAfwmfdlkIJLKSFjlkd_234adwalkWLKJ"                         # Токен телеграм-бота
 SELENOID_URL="http://localhost:4444/wd/hub"                                      # URL для подключения к Selenoid
 SECRET_KEY="ymkc933zy9wtafyy4e8gedf5c7hixawnivqhlo7d4iykfbf6rkip9l731zetq7o0"    # Секретный ключ для шифрования паролей (64 бит)
+DB_HOST="host.docker.internal"                                                   # Хост БД 
+DB_USER="root"                                                                   # Имя администратора БД
+DB_PASSWORD=""                                                                   # Пароль от БД
+DB_NAME="db_bot"                                                                 # Название БД
 ```
 
 ### Настройка [Selenoid'а](https://github.com/aerokube/selenoid) и WebDriver'а:
@@ -103,7 +109,6 @@ docker pull selenoid/vnc_chrome:128.0
 ```bash
 docker logs student-bot
 ```
-
 
 ## Схема каталогов проекта
 

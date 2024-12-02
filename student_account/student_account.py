@@ -3,9 +3,12 @@ from config_data.config import load_config
 from schedule_parser import ScheduleParser
 from rating_parser import RatingParser
 
+# Импорт инициализатора таблиц БД, словарь для хранения страниц и типы
+from database import initialize_databases
+from database import WeeklySchedule, Grades, Users
+
 # Импорты стандартных библиотек
 from dataclasses import dataclass
-import json
 
 # Импорты из библиотеки Selenium
 from selenium import webdriver
@@ -26,6 +29,7 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 class StudentAccount:
     user_login: str    # Логин пользователя
     user_pass: str     # Пароль пользователя
+    chat_id: int       # id чата с пользователем
 
     # URL авторизации
     url: str = "https://istudent.urfu.ru/?auth-ok"
@@ -52,6 +56,7 @@ class StudentAccount:
 
         # Авторизация пользователя
         await self.__authorisation()
+        await self.__connection_to_DB()
 
         return self
 
@@ -98,54 +103,9 @@ class StudentAccount:
             self.browser.quit()
             raise IncorrectDataException
 
-    # Метод, который обновляет данные пользователя в базе по ключу
-    def update_student_data(self, key: str) -> None:
-
-        # Обновление данных пользователя (расписания или рейтинга)
-        methods = {
-            "rating": self.update_student_rating,
-            "schedule": self.update_student_schedule
-        }
-
-        # Вызываем необходимый метод по ключу
-        methods[key]()
-
-    # Метод, который обновляет расписание в базе
-    def update_student_schedule(self):
-        # Удаление данных расписания пользователя
-        with open(r"database\schedule.json", mode="rb") as json_file:
-            schedule = json.load(json_file)
-
-            # Если пользователь есть в базе, удаляем его расписание
-            if self.user_login in schedule:
-                del schedule[self.user_login]
-
-        with open(r"database\schedule.json", mode="w", encoding="utf-8") as json_file:
-            json.dump(schedule, json_file, ensure_ascii=False, indent=2)
-
-    # Метод, который обновляет баллы в базе
-    def update_student_rating(self):
-        # Удаление краткой информации по баллам пользователя
-        with open(r"database\rating.json", mode="rb") as json_file:
-            rating = json.load(json_file)
-
-            # Если пользователь есть в базе, удаляем его баллы
-            if self.user_login in rating:
-                del rating[self.user_login]
-
-        with open(r"database\rating.json", "w", encoding="utf-8") as json_file:
-            json.dump(rating, json_file, ensure_ascii=False, indent=2)
-
-        # Удаление полной информации по баллам пользователя
-        with open(r"database\full_rating.json", "rb") as json_file:
-            rating = json.load(json_file)
-
-            # Если пользователь есть в базе, удаляем его баллы
-            if self.user_login in rating:
-                del rating[self.user_login]
-
-        with open(r"database\full_rating.json", "w", encoding="utf-8") as json_file:
-            json.dump(rating, json_file, ensure_ascii=False, indent=2)
+    async def __connection_to_DB(self):
+        tables = await initialize_databases()
+        _, self.grades_table, self.schedule_table = tables
 
     # Свойство, которое возвращает экземпляр класса
     # ScheduleParser для работы с расписанием
@@ -154,7 +114,8 @@ class StudentAccount:
         # Создание экземпляра парсера расписания
         return ScheduleParser(
             browser=self.browser,
-            account=self
+            chat_id=self.chat_id,
+            schedule_table=self.schedule_table
         )
 
     # Свойство, которое возвращает экземпляр класса
@@ -163,7 +124,7 @@ class StudentAccount:
     def rating(self):
         # Создание экземпляра парсера рейтинга
         return RatingParser(
-            cookies=self.cookies,
-            account=self,
-            browser=self.browser
+            browser=self.browser,
+            chat_id=self.chat_id,
+            grades_table=self.grades_table
         )

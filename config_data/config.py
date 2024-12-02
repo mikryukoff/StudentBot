@@ -4,6 +4,15 @@ from fake_useragent import UserAgent
 from environs import Env
 
 
+# Описание настроек подключения к БД
+@dataclass
+class Database:
+    host: str        # Хост БД
+    user: str        #
+    password: str    # Пароль от БД
+    db_name: str     # Название БД
+
+
 # Описание структуры для хранения пользовательских данных
 @dataclass
 class UserData:
@@ -30,6 +39,7 @@ class Config:
     webdriver: WebDriver    # Конфигурация WebDriver
     tg_bot: TgBot           # Конфигурация Telegram-бота
     user_data: UserData     # Данные пользователя
+    database: Database      # Данные для подключения к БД
 
 
 # Функция загрузки конфигурации
@@ -68,5 +78,11 @@ def load_config(path: str | None = None) -> Config:
             selenoid_url=env("SELENOID_URL")    # URL для подключения к Selenoid
         ),
         tg_bot=TgBot(token=env("BOT_TOKEN")),               # Токен Telegram-бота
-        user_data=UserData(secret_key=env("SECRET_KEY"))    # Секретный ключ пользователя
+        user_data=UserData(secret_key=env("SECRET_KEY")),   # Секретный ключ пользователя
+        database=Database(
+            host=env("DB_HOST"),            # Хост БД
+            user=env("DB_USER"),            #
+            password=env("DB_PASSWORD"),    # Пароль от БД
+            db_name=env("DB_NAME")          # Название БД
+        )
     )
