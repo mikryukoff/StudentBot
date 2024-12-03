@@ -8,6 +8,7 @@ services:
     container_name: student-bot
     depends_on:
       - selenoid
+      - db
     network_mode: bridge
     ports:
       - "5000:5000"
@@ -15,8 +16,26 @@ services:
       - .env
     environment:
       - SELENOID_URL=http://host.docker.internal:4444/wd/hub
+      # проверить конфликт с .env
+      - DB_HOST="db"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_DATABASE: "${DB_NAME}"
+      # если работаем не от root
+      # MYSQL_USER: "${DB_USER}"
+      # MYSQL_PASSWORD: "${DB_PASSWORD}"
+    # volumes:
+    # директория с данными
+    #  - /my/own/datadir:/var/lib/mysql
+    # есть возможность при создании выполнить скрипты инициализации (миграции)
+    # docs https://hub.docker.com/_/mysql
+    # - ./mysql_migrations:/docker-entrypoint-initdb.d:ro
 
   selenoid:
     image: aerokube/selenoid:latest-release
