@@ -14,7 +14,7 @@ from filters import DisciplineFilter
 
 from student_account import StudentAccount
 
-from lexicon import LEXICON, LEXICON_COMMANDS
+from lexicon import LEXICON, LEXICON_COMMANDS, COMPONENTS, ATTESTATION
 
 # Импорты библиотек Aiogram
 from aiogram import F, Router
@@ -85,19 +85,25 @@ async def send_discipline_rating(message: Message):
 
     msg = await message.answer(text=LEXICON["processing"])
 
-    discipline = message.text[1:]    # Убираем 📌 из текста
-
     _, discipline_rating = await grades_table.select_grades(
         chat_id=message.chat.id,
-        subject=discipline
+        subject=message.text[1:]
     )
 
-    text = f"{discipline}\n\n"
+    text = f"{message.text}:\n"
     for component, score in discipline_rating:
-        text += f"{component}: {score}\n"
+        if component in COMPONENTS:
+            text += f"\nℹ️*{component}*: `{score}`\n\n"
+        elif component in ATTESTATION.values():
+            if component == ATTESTATION["Current"]:
+                text += f"*{component}*: `{score}`\n\n"
+            else:
+                text += f"\n*{component}*: `{score}`\n\n"
+        else:
+            text += f"{'\u00A0' * 4}— {component}: `{score}`\n"
 
     # Отправляем баллы по выбранному предмету
-    await msg.edit_text(text=text)
+    await msg.edit_text(text=text, parse_mode="Markdown")
 
 
 # Отправка краткого рейтинга
@@ -112,7 +118,7 @@ async def send_short_rating(message: Message):
 
     text = ""
     for subject in disciplines:
-        text += f"{subject}: "
+        text += f"{subject}:\n"
         _, scores = await grades_table.select_grades(
             chat_id=message.chat.id,
             subject=subject[1:]
@@ -121,7 +127,7 @@ async def send_short_rating(message: Message):
         text += f"{component}: {score}\n\n"
 
     # Отправляем краткую информацию по баллам предметов
-    await msg.edit_text(text=text)
+    await msg.edit_text(text=text, parse_mode="Markdown")
 
 
 # Отправка полного рейтинга с пагинацией
@@ -136,21 +142,22 @@ async def send_full_rating(message: Message):
 
     grades_table = tables[1]
 
-    if not disciplines:
-        # Формируем список дисциплин
-        disciplines = await grades_table.select_name_subjects(
-            chat_id=message.chat.id
-        )
-        disciplines = [f"📌{i}" for i in disciplines]
-
     for subject in disciplines:
-        text = f"{subject}: \n\n"
+        text = f"{subject}:\n"
         _, scores = await grades_table.select_grades(
             chat_id=message.chat.id,
             subject=subject[1:]
         )
         for component, score in scores:
-            text += f"{component}: {score}\n"
+            if component in COMPONENTS:
+                text += f"\nℹ️*{component}*: `{score}`\n\n"
+            elif component in ATTESTATION.values():
+                if component == ATTESTATION["Current"]:
+                    text += f"*{component}*: `{score}`\n\n"
+                else:
+                    text += f"\n*{component}*: `{score}`\n\n"
+            else:
+                text += f"{'\u00A0' * 4}— {component}: `{score}`\n"
 
         text += "\n"
         rating_list.append(text)
@@ -163,6 +170,7 @@ async def send_full_rating(message: Message):
     if page != len(pages) - 1 and page != 0:
         await message.answer(
             text=rating_list[page],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 "backward_rating", pages[page], "forward_rating"
             )
@@ -170,6 +178,7 @@ async def send_full_rating(message: Message):
     elif page == 0:
         await message.answer(
             text=rating_list[page],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 pages[page], "forward_rating"
             )
@@ -177,6 +186,7 @@ async def send_full_rating(message: Message):
     else:
         await message.answer(
             text=rating_list[page],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 "backward_rating", pages[page]
             )
@@ -196,6 +206,7 @@ async def press_forward_rating(callback: CallbackQuery):
     if page + 1 < len(pages) - 1:
         await callback.message.edit_text(
             text=rating_list[page + 1],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 "backward_rating", pages[page + 1], "forward_rating"
             )
@@ -203,6 +214,7 @@ async def press_forward_rating(callback: CallbackQuery):
     else:
         await callback.message.edit_text(
             text=rating_list[page + 1],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 "backward_rating", pages[page + 1]
             )
@@ -227,6 +239,7 @@ async def press_backward_rating(callback: CallbackQuery):
     if page - 1 > 0:
         await callback.message.edit_text(
             text=rating_list[page - 1],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 "backward_rating", pages[page - 1], "forward_rating"
             )
@@ -234,6 +247,7 @@ async def press_backward_rating(callback: CallbackQuery):
     else:
         await callback.message.edit_text(
             text=rating_list[page - 1],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 pages[page - 1], "forward_rating"
             )
