@@ -59,7 +59,7 @@ class Users:
         """
         async with self.connection_pool.acquire() as connection:
             async with connection.cursor() as cursor:
-                select_user = f"SELECT * FROM Users WHERE chat_id = {chat_id}"
+                select_user = f"SELECT * FROM users WHERE chat_id = {chat_id};"
                 await cursor.execute(select_user)
                 rows = await cursor.fetchone()
             return True if rows else False
@@ -79,7 +79,7 @@ class Users:
         async with self.connection_pool.acquire() as connection:
             async with connection.cursor() as cursor:
                 insert_user_data = f"""
-                    INSERT INTO Users (chat_id, login, password_hash, current_week_start)
+                    INSERT INTO users (chat_id, login, password_hash, current_week_start)
                     VALUES ({chat_id}, '{login}', '{password_hash}', '{current_week_start}');
                 """
                 await cursor.execute(insert_user_data)
@@ -93,7 +93,7 @@ class Users:
         """
         async with self.connection_pool.acquire() as connection:
             async with connection.cursor() as cursor:
-                delete_user = f"DELETE FROM Users WHERE chat_id = {chat_id};"
+                delete_user = f"DELETE FROM users WHERE chat_id = {chat_id};"
                 await cursor.execute(delete_user)
 
     async def select_user_data(self, chat_id: int) -> tuple[str, str, str]:
@@ -113,7 +113,7 @@ class Users:
             async with connection.cursor() as cursor:
                 select = f"""
                     SELECT login, password_hash, current_week_start
-                    FROM Users
+                    FROM users
                     WHERE chat_id = {chat_id};
                 """
                 await cursor.execute(select)
@@ -137,7 +137,7 @@ class Users:
         async with self.connection_pool.acquire() as connection:
             async with connection.cursor() as cursor:
                 update_chat_id = f"""
-                    UPDATE Users
+                    UPDATE users
                     SET chat_id = {chat_id}
                     WHERE login = '{login}';
                 """
@@ -153,7 +153,7 @@ class Users:
         async with self.connection_pool.acquire() as connection:
             async with connection.cursor() as cursor:
                 update_user_data = f"""
-                    UPDATE Users
+                    UPDATE users
                     SET current_week_start = '{current_week_start}';
                 """
                 await cursor.execute(update_user_data)

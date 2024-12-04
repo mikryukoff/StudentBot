@@ -22,7 +22,7 @@ class RatingParser:
     grades_table: Grades    # Таблица с баллами в БД
 
     # URL страницы с рейтингом дисциплин
-    url: str = 'https://istudent.urfu.ru/s/http-urfu-ru-ru-students-study-brs'
+    url: str = 'https://istudent.urfu.ru/s/http-urfu-ru-ru-students-study-brs?year=2024'    # CHANGE IN 2025
 
     # Метод для загрузки всех баллов по дисциплинам
     async def full_disciplines_rating(self, key: str):
@@ -60,6 +60,8 @@ class RatingParser:
         disciplines_data = zip(
             soup.select(".rating-discipline-info.loaded"), disciplines_names
         )
+
+        print(disciplines_names)
 
         # Сохраняем полный рейтинг для каждой дисциплины
         for discipline_rating, discipline_name in disciplines_data:

@@ -92,15 +92,17 @@ async def send_discipline_rating(message: Message):
 
     text = f"{message.text}:\n"
     for component, score in discipline_rating:
+        blank = False
         if component in COMPONENTS:
             text += f"\nℹ️*{component}*: `{score}`\n\n"
         elif component in ATTESTATION.values():
             if component == ATTESTATION["Current"]:
-                text += f"*{component}*: `{score}`\n\n"
+                text += f"*{component}*: `{score}`\n"
             else:
-                text += f"\n*{component}*: `{score}`\n\n"
+                text += f"{blank * '\n'}\n*{component}*: `{score}`\n"
         else:
             text += f"{'\u00A0' * 4}— {component}: `{score}`\n"
+            blank = True
 
     # Отправляем баллы по выбранному предмету
     await msg.edit_text(text=text, parse_mode="Markdown")
@@ -149,15 +151,17 @@ async def send_full_rating(message: Message):
             subject=subject[1:]
         )
         for component, score in scores:
+            blank = False
             if component in COMPONENTS:
                 text += f"\nℹ️*{component}*: `{score}`\n\n"
             elif component in ATTESTATION.values():
                 if component == ATTESTATION["Current"]:
-                    text += f"*{component}*: `{score}`\n\n"
+                    text += f"*{component}*: `{score}`\n"
                 else:
-                    text += f"\n*{component}*: `{score}`\n\n"
+                    text += f"{blank * '\n'}\n*{component}*: `{score}`\n"
             else:
                 text += f"{'\u00A0' * 4}— {component}: `{score}`\n"
+                blank = True
 
         text += "\n"
         rating_list.append(text)

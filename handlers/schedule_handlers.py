@@ -47,8 +47,17 @@ tables: tuple[Users, Grades, WeeklySchedule] = ()
 @router.message(F.text == LEXICON_COMMANDS["schedule"])
 async def schedule_menu(message: Message):
     global tables
+    global week_days
 
     tables = await initialize_databases()
+
+    if not week_days:
+        users_table = tables[0]
+
+        # Извлечение дней недели из расписания
+        user_data = await users_table.select_user_data(chat_id=message.chat.id)
+        week_days = [(user_data[2] + timedelta(days=i)).strftime("%a. - %d.%m")
+                     for i in range(7)]
 
     # Отправляем пользователю меню с кнопками для работы с расписанием
     await message.answer(
@@ -65,15 +74,6 @@ async def day_schedule_menu(message: Message):
 
     msg = await message.answer(LEXICON["processing"])
 
-    if not week_days:
-        users_table = tables[0]
-
-        # Извлечение дней недели из расписания
-        user_data = await users_table.select_user_data(chat_id=message.chat.id)
-        week_start = datetime.strptime(user_data[2], "%Y-%m-%d")
-        week_days = [(week_start + timedelta(days=i)).strftime("%a - %d.%m")
-                     for i in range(7)]
-
     # Удаление промежуточного сообщения
     await message.bot.delete_message(
         chat_id=msg.chat.id,
@@ -82,7 +82,7 @@ async def day_schedule_menu(message: Message):
 
     # Отправка клавиатуры с выбором дня
     await message.answer(
-        LEXICON["day_schedule"],
+        text=LEXICON["day_schedule"],
         reply_markup=week_dates_keyboard(week_days)
     )
 
@@ -101,12 +101,15 @@ async def send_day_schedule(message: Message):
         day_of_week=week_days.index(message.text)
     )
 
-    text = f"{message.text}:\n\n"
+    text = f"📌{message.text}:\n\n"
     for discipline, time, location in rows:
-        text += f"{time}:\n{discipline}\n{location}\n\n"
+        # Если есть URL, оформляем их как ссылки в формате Markdown
+        if "https://" in str(location) or "http://" in str(location):
+            location = f"[{location}]({location})"
+        text += f"`{time}`:\n*{discipline}*\n{location}\n\n"
 
     # Редактирование сообщения с расписанием
-    await msg.edit_text(text=text)
+    await msg.edit_text(text=text, parse_mode="Markdown")
 
 
 # Хендлер для отображения расписания на неделю с пагинацией
@@ -116,20 +119,12 @@ async def send_week_schedule(message: Message):
     global week_days
     global tables
 
-    if not week_days:
-        users_table = tables[0]
-
-        # Извлечение дней недели из расписания
-        user_data = await users_table.select_user_data(chat_id=message.chat.id)
-        week_days = [(user_data[2] + timedelta(days=i)).strftime("%a. - %d.%m")
-                     for i in range(7)]
-
     schedule_table = tables[2]
 
     await message.answer(LEXICON["processing"])
 
     for day in week_days:
-        text = f"{day}:\n\n"
+        text = f"📌{day}:\n\n"
 
         _, rows = await schedule_table.select_discipline(
             chat_id=message.chat.id,
@@ -137,7 +132,10 @@ async def send_week_schedule(message: Message):
         )
 
         for discipline, time, location in rows:
-            text += f"{time}:\n{discipline}\n{location}\n\n"
+            # Если есть URL, оформляем их как ссылки в формате Markdown
+            if "https://" in str(location) or "http://" in str(location):
+                location = f"[{location}]({location})"
+            text += f"`{time}`:\n*{discipline}*\n{location}\n\n"
 
         schedule.append(text)
 
@@ -148,6 +146,7 @@ async def send_week_schedule(message: Message):
     if page != len(week_days) - 1 and page != 0:
         await message.answer(
             text=schedule[page],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 "backward_schedule", week_days[page], "forward_schedule"
             )
@@ -155,6 +154,7 @@ async def send_week_schedule(message: Message):
     elif page == 0:
         await message.answer(
             text=schedule[page],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 week_days[page], "forward_schedule"
             )
@@ -162,6 +162,7 @@ async def send_week_schedule(message: Message):
     else:
         await message.answer(
             text=schedule[page],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 "backward_schedule", week_days[page]
             )
@@ -181,6 +182,7 @@ async def press_forward_schedule(callback: CallbackQuery):
     if page + 1 < len(week_days) - 1:
         await callback.message.edit_text(
             text=schedule[page + 1],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 "backward_schedule", week_days[page + 1], "forward_schedule"
             )
@@ -188,6 +190,7 @@ async def press_forward_schedule(callback: CallbackQuery):
     else:
         await callback.message.edit_text(
             text=schedule[page + 1],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 "backward_schedule", week_days[page + 1]
             )
@@ -212,6 +215,7 @@ async def press_backward_schedule(callback: CallbackQuery):
     if page - 1 > 0:
         await callback.message.edit_text(
             text=schedule[page - 1],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 "backward_schedule", week_days[page - 1], "forward_schedule"
             )
@@ -219,6 +223,7 @@ async def press_backward_schedule(callback: CallbackQuery):
     else:
         await callback.message.edit_text(
             text=schedule[page - 1],
+            parse_mode="Markdown",
             reply_markup=create_pagination_keyboard(
                 week_days[page - 1], "forward_schedule"
             )

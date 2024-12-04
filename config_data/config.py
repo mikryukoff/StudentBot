@@ -65,7 +65,7 @@ def load_config(path: str | None = None) -> Config:
         "browserName": "chrome",      # Имя браузера
         "browserVersion": "128.0",    # Версия браузера
         "selenoid:options": {         # Специальные опции Selenoid
-            "enableVNC": True,        # Включение VNC
+            "enableVNC": True,       # Включение VNC
             "enableVideo": False      # Отключение записи видео
         }
     }
