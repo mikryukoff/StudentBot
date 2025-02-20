@@ -10,8 +10,7 @@ config: Config = load_config()
 # Определяем словарь для работы с обектами каждого пользователя
 users_data: dict = {}
 
-
-class Users:
+class ConnectTable:
     def __init__(self, host: str, user: str, password: str, db_name: str):
         """
         Инициализирует класс Users и устанавливает параметры подключения к базе данных.
@@ -47,6 +46,9 @@ class Users:
             self.connection_pool.close()
             await self.connection_pool.wait_closed()
 
+
+
+class Users(ConnectTable):
     async def is_user_in_db(self, chat_id: int) -> bool:
         """
         Проверяет, существует ли пользователь с указанным chat_id в базе данных.
@@ -159,42 +161,7 @@ class Users:
                 await cursor.execute(update_user_data)
 
 
-class Grades:
-    def __init__(self, host: str, user: str, password: str, db_name: str):
-        """
-        Инициализирует класс Grades и устанавливает параметры подключения к базе данных.
-
-        Аргументы:
-            host (str): Хост базы данных.
-            user (str): Имя пользователя для подключения.
-            password (str): Пароль для подключения.
-            db_name (str): Имя базы данных.
-        """
-        self.host = host
-        self.user = user
-        self.password = password
-        self.db_name = db_name
-
-    async def connect(self) -> None:
-        """
-        Создает пул соединений с базой данных.
-        """
-        self.connection_pool = await aiomysql.create_pool(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            db=self.db_name,
-            autocommit=True,
-        )
-
-    async def close(self) -> None:
-        """
-        Закрывает пул соединений с базой данных.
-        """
-        if self.connection_pool:
-            self.connection_pool.close()
-            await self.connection_pool.wait_closed()
-
+class Grades(ConnectTable):
     async def insert_subject(
         self, chat_id: int, subject: str, component: str, score: str
     ) -> None:
@@ -290,42 +257,7 @@ class Grades:
                 await cursor.execute(update_grades)
 
 
-class WeeklySchedule:
-    def __init__(self, host: str, user: str, password: str, db_name: str):
-        """
-        Инициализирует класс WeeklySchedule и устанавливает параметры подключения к базе данных.
-
-        Аргументы:
-            host (str): Хост базы данных.
-            user (str): Имя пользователя для подключения.
-            password (str): Пароль для подключения.
-            db_name (str): Имя базы данных.
-        """
-        self.host = host
-        self.user = user
-        self.password = password
-        self.db_name = db_name
-
-    async def connect(self) -> None:
-        """
-        Создает пул соединений с базой данных.
-        """
-        self.connection_pool = await aiomysql.create_pool(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            db=self.db_name,
-            autocommit=True,
-        )
-
-    async def close(self) -> None:
-        """
-        Закрывает пул соединений с базой данных.
-        """
-        if self.connection_pool:
-            self.connection_pool.close()
-            await self.connection_pool.wait_closed()
-
+class WeeklySchedule(ConnectTable):
     async def insert_discipline(
         self,
         chat_id: int,
