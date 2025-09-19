@@ -62,37 +62,6 @@ DB_NAME="db_bot"                                                                
 
 ## Запуск
 
-### Запуск [Selenoid'а](https://github.com/aerokube/selenoid):
-
-**Если вы работаете на Linux (обычный сервер или виртуальная машина):**  
-```bash
-tools/cm_linux_amd64 selenoid start --vnc --tmpfs 128
-```
-
-**Если работаете на macOS:**
-
-- Для Intel-процессоров:  
-```bash
-tools/cm_darwin_amd64 selenoid start --vnc --tmpfs 128
-```
-
-- Для Apple Silicon (M1/M2):  
-```bash
-tools/cm_darwin_arm64 selenoid start --vnc --tmpfs 128
-```
-
-**Если работаете на Windows:**
-
-- Для 32-битной версии Windows:   
-```bash
-tools/cm_windows_386.exe selenoid start --vnc --tmpfs 128
-```
-
-- Для 64-битной версии Windows:  
-```bash
-tools/cm_windows_amd64.exe selenoid start --vnc --tmpfs 128
-```
-
 ### Сборка и запуск Docker'а:
 
 - Сборка и запуск:
@@ -149,11 +118,6 @@ StudentBot/
 │   ├── __init__.py                 # Инициализация пакета
 │   ├── exceptions.py               # Вспомогательные исключения
 │   └── student_account.py          # Драйвер Selenium с настройками и авторизацией
-├── tools/                          # Установщики Selenoid
-│   ├── cm_linux_amd64              # Утилита для Linux
-│   ├── cm_darwin_amd64             # Утилита для macOS (Intel)
-│   ├── cm_darwin_arm64             # Утилита для macOS (M1/M2)
-│   └── cm_windows_amd64.exe        # Утилита для Windows
 ├── __main__.py                     # Основной исполняемый файл бота
 ├── .env.example                    # Пример файла с переменными окружения
 ├── .gitignore                      # Файлы и каталоги, игнорируемые Git
