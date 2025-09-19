@@ -10,6 +10,7 @@ from selenium.webdriver import Remote
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 
 # Для парсинга HTML и работы с парсером lxml
 from bs4 import BeautifulSoup, ResultSet, Tag
@@ -45,10 +46,12 @@ class ScheduleParser:
         # Загрузка страницы с расписанием
         self.browser.get(self.url)
 
+        self.browser.save_screenshot("screenshot.png")
+
         # Ожидание появления элементов на странице
-        WebDriverWait(self.browser, 10).until(
+        WebDriverWait(self.browser, 30).until(
             EC.visibility_of_any_elements_located(
-                (By.CSS_SELECTOR, ".fc-title")
+                (By.CLASS_NAME, "fc-title")
             )
         )
 

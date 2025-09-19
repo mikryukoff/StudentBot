@@ -12,9 +12,9 @@ RUN apt-get update && apt-get install -y locales && \
     update-locale LANG=ru_RU.UTF-8
 
 # Установка переменных окружения для локали
-ENV LANG ru_RU.UTF-8
-ENV LANGUAGE ru_RU:ru
-ENV LC_ALL ru_RU.UTF-8
+ENV LANG=ru_RU.UTF-8
+ENV LANGUAGE=ru_RU:ru
+ENV LC_ALL=ru_RU.UTF-8
 
 # Рабочая директория внутри контейнера
 WORKDIR /app

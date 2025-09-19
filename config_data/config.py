@@ -53,19 +53,20 @@ def load_config(path: str | None = None) -> Config:
         "--start-maximized",                                # Запуск браузера в режиме полного экрана
         "--disable-blink-features=AutomationControlled",    # Скрытие использования автоматизации
         "--no-sandbox",                                     # Отключение песочницы
-        f'--user-agent={UserAgent().random}',               # Установка случайного user-agent
+        f'--user-agent={get_desktop_user_agent()}',         # Установка случайного user-agent
         '--enable-unsafe-swiftshader',                      # Включение SwiftShader
         '--disable-browser-side-navigation',                # Отключение навигации со стороны браузера
         "--disable-gpu",                                    # Отключение GPU
-        "--headless"                                        # Запуск браузера в фоновом режиме (без UI)
+        "--headless",                                       # Запуск браузера в фоновом режиме (без UI)
+        "--window-size=1920,1080"                           # Явное указание размера окна
     ]
 
     # Настройки для Selenoid
     capability = {
         "browserName": "chrome",      # Имя браузера
-        "browserVersion": "128.0",    # Версия браузера
+        "browserVersion": "125.0",    # Версия браузера
         "selenoid:options": {         # Специальные опции Selenoid
-            "enableVNC": True,       # Включение VNC
+            "enableVNC": True,        # Включение VNC
             "enableVideo": False      # Отключение записи видео
         }
     }
@@ -86,3 +87,20 @@ def load_config(path: str | None = None) -> Config:
             db_name=env("DB_NAME")          # Название БД
         )
     )
+
+
+def get_desktop_user_agent():
+    ua = UserAgent()
+    desktop_browsers = ['chrome', 'firefox', 'edge', 'safari', 'opera']
+    
+    while True:
+        user_agent = ua.random
+        # Более строгая проверка на desktop
+        if (any(browser in user_agent.lower() for browser in desktop_browsers) and
+            'mobile' not in user_agent.lower() and
+            'android' not in user_agent.lower() and
+            'iphone' not in user_agent.lower() and
+            'ipad' not in user_agent.lower() and
+            'windows phone' not in user_agent.lower()):
+            print(f"Selected User-Agent: {user_agent}")  # Логирование
+            return user_agent

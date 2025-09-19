@@ -5,7 +5,6 @@ from rating_parser import RatingParser
 
 # Импорт инициализатора таблиц БД, словарь для хранения страниц и типы
 from database import initialize_databases
-from database import WeeklySchedule, Grades, Users
 
 # Импорты стандартных библиотек
 from dataclasses import dataclass

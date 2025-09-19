@@ -1,48 +1,41 @@
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: student-bot
-    network_mode: bridge
-    depends_on:
-      - selenoid
-      - db
-    ports:
-      - "5000:5000"
-    environment:
-      - SELENOID_URL=http://host.docker.internal:4444/wd/hub
-    env_file:
-      - .env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
   db:
     image: mysql:8.0
     container_name: db
-    restart: always
-    network_mode: bridge
+    restart: unless-stopped
+    networks:
+      - app-network
+    ports:
+      - "3308:3306"
     environment:
       MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
       MYSQL_DATABASE: "${DB_NAME}"
-      # если работаем не от root
       # MYSQL_USER: "${DB_USER}"
       # MYSQL_PASSWORD: "${DB_PASSWORD}"
     volumes:
-      - /my/own/datadir:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
       - ./mysql_migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USER}", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
 
   selenoid:
     image: aerokube/selenoid:latest-release
     container_name: selenoid
     network_mode: bridge
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./selenoid/config:/etc/selenoid/"
-    env_file:
-      - .env
     ports:
       - "4444:4444"
+    environment:
+      - "OVERRIDE_VIDEO_OUTPUT_DIR=$PWD/video"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./selenoid/config:/etc/selenoid"
+      - "./selenoid/video:/opt/selenoid/video"
+      - "./selenoid/logs:/opt/selenoid/logs"
+    command: ["-conf", "/etc/selenoid/browsers.json", "-limit", "20", "-retry-count", "1000", "-video-output-dir", "/opt/selenoid/video", "-log-output-dir", "/opt/selenoid/logs", "-max-timeout", "20m0s", "-session-attempt-timeout", "15m", "-timeout", "10m",  "-service-startup-timeout", "10m"]
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -50,12 +43,52 @@ services:
     image: aerokube/selenoid-ui:latest-release
     container_name: selenoid-ui
     network_mode: bridge
-    links:
-      - selenoid
     ports:
       - "8080:8080"
-    command:
-      - "--selenoid-uri"
-      - "http://host.docker.internal:4444"
+    links:
+      - selenoid
+    command: -selenoid-uri "http://host.docker.internal:4444"
+    depends_on:
+      - selenoid
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  adminer:
+    image: adminer
+    networks:
+      - app-network
+    container_name: adminer
+    ports:
+      - "9000:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=db
+    depends_on:
+      - db
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: student-bot
+    networks:
+      - app-network
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

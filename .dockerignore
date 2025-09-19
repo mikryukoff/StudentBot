@@ -1,0 +1,61 @@
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Temp files
+*.tmp
+*.temp
+
+# Large data files
+data/
+*.csv
+*.h5
+*.pkl
+*.joblib
+
+# Environment variables
+.env
+.env.*
+
+tools/
