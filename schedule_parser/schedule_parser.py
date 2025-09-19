@@ -46,8 +46,6 @@ class ScheduleParser:
         # Загрузка страницы с расписанием
         self.browser.get(self.url)
 
-        self.browser.save_screenshot("screenshot.png")
-
         # Ожидание появления элементов на странице
         WebDriverWait(self.browser, 30).until(
             EC.visibility_of_any_elements_located(
