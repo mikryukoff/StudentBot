@@ -10,6 +10,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+**/.venv
+**/venv
+**/env
 test.py
 
 # Dependency directories

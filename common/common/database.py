@@ -1,5 +1,5 @@
 import aiomysql
-from config_data.config import load_config, Config
+from common.config import load_config, Config
 from typing import Union
 
 

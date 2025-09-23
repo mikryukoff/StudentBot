@@ -7,13 +7,13 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from datetime import datetime, timedelta
 
 # Импорты пользовательских модулей
-from config_data.config import load_config
+from common.config import load_config
 
-from cipher import PassCipher
+from common.cipher import PassCipher
 
 # Импорт инициализатора таблиц БД, словарь для хранения страниц и типы
-from database import initialize_databases, users_data
-from database import WeeklySchedule, Grades, Users
+from common.database import initialize_databases, users_data
+from common.database import WeeklySchedule, Grades, Users
 
 from lexicon import LEXICON, LEXICON_COMMANDS
 

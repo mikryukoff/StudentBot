@@ -1,32 +1,29 @@
-# Базовый образ с Python 3.13
-FROM python:3.13-slim
+FROM python:3.12.10-slim
 
-# Отключение .pyc файлов и включение небуферизованного вывода
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Установка локалей
-RUN apt-get update && apt-get install -y locales && \
-    echo "ru_RU.UTF-8 UTF-8" > /etc/locale.gen && \
-    locale-gen && \
-    update-locale LANG=ru_RU.UTF-8
-
-# Установка переменных окружения для локали
-ENV LANG=ru_RU.UTF-8
-ENV LANGUAGE=ru_RU:ru
-ENV LC_ALL=ru_RU.UTF-8
-
-# Рабочая директория внутри контейнера
 WORKDIR /app
 
-# Копирование файла requirements.txt
-COPY requirements.txt /app/
+# Устанавливаем UV
+RUN pip install uv
 
-# Установка зависимостей
-RUN pip install --no-cache-dir -r requirements.txt
+# Настройки окружения UV
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
+ENV UV_TOOL_BIN_DIR=/usr/local/bin
 
-# Копирование остальных файлов проекта
-COPY . /app/
+# Копируем только зависимости бота
+COPY bot/pyproject.toml bot/uv.lock ./
+COPY common/pyproject.toml common/uv.lock ./common/
 
-# Запуск приложения через __main__.py
-CMD ["python", "/app/__main__.py"]
+# Устанавливаем зависимости бота
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --no-dev
+
+# Копируем исходный код бота (только нужные файлы)
+COPY bot/src/ ./src/
+COPY common/ ./common/
+
+# Устанавливаем переменные окружения
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Команда запуска
+CMD ["uv", "run", "python", "src/__main__.py"]

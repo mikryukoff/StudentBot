@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup, ResultSet, Tag
 import lxml
 
 # Импорт объекта для работы с таблицей расписания в БД
-from database import WeeklySchedule
+from common.database import WeeklySchedule
 
 
 # Класс для обозначения отсутствия данных

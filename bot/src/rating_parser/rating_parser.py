@@ -12,7 +12,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
 import lxml
 
-from database import Grades
+from common.database import Grades
 
 
 @dataclass

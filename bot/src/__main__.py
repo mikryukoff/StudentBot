@@ -15,7 +15,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 
 # Импорты конфигурации
-from config_data.config import load_config
+from common.config import load_config
 
 # Логгер для работы с логами
 logger = logging.getLogger(__name__)

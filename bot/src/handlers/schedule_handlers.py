@@ -3,19 +3,18 @@ from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 
 from datetime import datetime, timedelta
-import locale
 
 # Импорты пользовательских модулей
 from keyboards.menu_kb import ScheduleMenu, week_dates_keyboard
 from keyboards.pagination_kb import create_pagination_keyboard
 
-from config_data.config import load_config
+from common.config import load_config
 
-from cipher import PassCipher
+from common.cipher import PassCipher
 
 # Импорт инициализатора таблиц БД, словарь для хранения страниц и типы
-from database import initialize_databases, users_data
-from database import WeeklySchedule, Grades, Users
+from common.database import initialize_databases, users_data
+from common.database import WeeklySchedule, Grades, Users
 
 from filters import DateFilter
 
@@ -23,8 +22,6 @@ from student_account import StudentAccount
 
 from lexicon import LEXICON, LEXICON_COMMANDS
 
-
-locale.setlocale(locale.LC_TIME, "ru_RU.UTF-8")
 
 # Создание экземпляра Router
 router: Router = Router()

@@ -1,10 +1,10 @@
 # Импорты из локальных модулей
-from config_data.config import load_config
+from common.config import load_config
 from schedule_parser import ScheduleParser
 from rating_parser import RatingParser
 
 # Импорт инициализатора таблиц БД, словарь для хранения страниц и типы
-from database import initialize_databases
+from common.database import initialize_databases
 
 # Импорты стандартных библиотек
 from dataclasses import dataclass

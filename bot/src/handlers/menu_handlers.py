@@ -8,7 +8,7 @@ from lexicon import LEXICON, LEXICON_COMMANDS
 
 import keyboards.menu_kb as kb
 
-from database import users_data
+from common.database import users_data
 
 
 # Инициализация роутера
