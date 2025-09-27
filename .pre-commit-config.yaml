@@ -23,6 +23,27 @@ repos:
         files: ^backend/pyproject\.toml$
         exclude: frontend/
 
+      - id: pip-compile
+        name: Compile main dependencies (frontend)
+        args: [
+            "frontend/pyproject.toml",
+            "--output-file=frontend/requirements.txt",
+            "--resolver=backtracking"
+          ]
+        files: ^frontend/pyproject\.toml$
+        exclude: backend/
+
+      - id: pip-compile
+        name: Compile dev dependencies (frontend)
+        args: [
+            "frontend/pyproject.toml",
+            "--output-file=frontend/requirements-dev.txt",
+            "--extra=dev",
+            "--resolver=backtracking"
+          ]
+        files: ^frontend/pyproject\.toml$
+        exclude: backend/
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.13.2
     hooks:

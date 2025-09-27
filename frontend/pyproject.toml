@@ -9,7 +9,6 @@ dependencies = [
     "aiohttp>=3.12.15",
     "environs>=14.3.0",
     "fake-useragent>=2.2.0",
-    "selenium>=4.35.0",
 ]
 
 [dependency-groups]
