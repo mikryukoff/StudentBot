@@ -1,25 +1,18 @@
-# Импорты модулей и библиотек
-from aiogram import Router, F
-from aiogram.types import Message
+import traceback
+
+import bot.exceptions.api_exceptions as api_exc
+import bot.keyboards.menu_kb as kb
+from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
-
+from aiogram.types import Message
+from bot.database import users_data
+from bot.lexicon import LEXICON, LEXICON_COMMANDS
+from bot.utils import make_api_request
 from environs import Env
 
-import traceback
-
-# Импорты пользовательских модулей
 from config import load_config
-
-from bot.utils import make_api_request
-import bot.exceptions.api_exceptions as api_exc
-
-from bot.database import users_data
-
-from bot.lexicon import LEXICON, LEXICON_COMMANDS
-
-import bot.keyboards.menu_kb as kb
 
 # Инициализация роутера и хранилища
 router: Router = Router()

@@ -14,6 +14,7 @@ venv.bak/
 **/venv
 **/env
 test.py
+.ruff_cache
 
 # Dependency directories
 node_modules/

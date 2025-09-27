@@ -1,0 +1,30 @@
+repos:
+  - repo: https://github.com/jazzband/pip-tools
+    rev: v7.5.0
+    hooks:
+      - id: pip-compile
+        name: Compile main dependencies (Backend)
+        args: [
+            "backend/pyproject.toml",
+            "--output-file=backend/requirements.txt",
+            "--resolver=backtracking"
+          ]
+        files: ^backend/pyproject\.toml$
+        exclude: frontend/
+
+      - id: pip-compile
+        name: Compile dev dependencies (Backend)
+        args: [
+            "backend/pyproject.toml",
+            "--output-file=backend/requirements-dev.txt",
+            "--extra=dev",
+            "--resolver=backtracking"
+          ]
+        files: ^backend/pyproject\.toml$
+        exclude: frontend/
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.13.2
+    hooks:
+    -   id: ruff-check
+        args: [--select, I, --fix]

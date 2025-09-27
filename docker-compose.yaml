@@ -25,16 +25,17 @@ services:
   selenoid:
     image: aerokube/selenoid:latest-release
     container_name: selenoid
-    network_mode: bridge
+    networks:
+      - app-network
     ports:
       - "4444:4444"
     environment:
       - "OVERRIDE_VIDEO_OUTPUT_DIR=$PWD/video"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./bot/src/selenoid/config:/etc/selenoid"
-      - "./bot/src/selenoid/video:/opt/selenoid/video"
-      - "./bot/src/selenoid/logs:/opt/selenoid/logs"
+      - "./backend/app/parsers/selenoid/config:/etc/selenoid"
+      - "./backend/app/parsers/selenoid/video:/opt/selenoid/video"
+      - "./backend/app/parsers/selenoid/logs:/opt/selenoid/logs"
     command: ["-conf", "/etc/selenoid/browsers.json", "-limit", "20", "-retry-count", "1000", "-video-output-dir", "/opt/selenoid/video", "-log-output-dir", "/opt/selenoid/logs", "-max-timeout", "20m0s", "-session-attempt-timeout", "15m", "-timeout", "10m",  "-service-startup-timeout", "10m"]
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -42,7 +43,8 @@ services:
   selenoid-ui:
     image: aerokube/selenoid-ui:latest-release
     container_name: selenoid-ui
-    network_mode: bridge
+    networks:
+      - app-network
     ports:
       - "8080:8080"
     links:
@@ -65,20 +67,42 @@ services:
     depends_on:
       - db
 
-  telegram_bot:
+  frontend:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: student-bot
+      dockerfile: frontend/Dockerfile
+    container_name: frontend
     networks:
       - app-network
     ports:
       - "5000:5000"
     env_file:
       - .env
+    # volumes:
+    #   - ./frontend/bot:/app/bot
+    #   - ./config:/app/config
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: backend
+    networks:
+      - app-network
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
     volumes:
-      - ./bot/src:/app/src
-      - ./common/common:/app/common/common
+      - ./backend/logs/:/app/logs
+    #   - ./backend/app:/app/app
+    #   - ./config:/app/config
     depends_on:
       db:
         condition: service_healthy

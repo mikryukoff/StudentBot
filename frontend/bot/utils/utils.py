@@ -1,12 +1,12 @@
+import logging
+import traceback
 from typing import Any, Dict, Optional, Union
+
 import aiohttp
 import bot.exceptions.api_exceptions as api_exc
-from environs import Env
 import bot.keyboards.menu_kb as kb
 from bot.lexicon import LEXICON
-import traceback
-import logging
-
+from environs import Env
 
 env = Env()
 env.read_env()

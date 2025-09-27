@@ -1,7 +1,6 @@
 # Импорты необходимых библиотек
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 from bot.lexicon import LEXICON_COMMANDS
-
 
 # Меню авторизации
 LogInMenu = ReplyKeyboardMarkup(

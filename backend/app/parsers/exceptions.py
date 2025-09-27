@@ -1,5 +1,5 @@
 # Импорты необходимых исключений из библиотеки Selenium
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 
 class IncorrectDataException(NoSuchElementException):

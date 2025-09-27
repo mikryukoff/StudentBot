@@ -1,0 +1,25 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiomysql>=0.2.0",
+    "async-property>=0.2.2",
+    "bs4>=0.0.2",
+    "cryptography>=46.0.1",
+    "environs>=14.3.0",
+    "fake-useragent>=2.2.0",
+    "fastapi>=0.117.1",
+    "loguru>=0.7.3",
+    "lxml>=6.0.2",
+    "selenium>=4.35.0",
+    "uvicorn>=0.37.0",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.3.0",
+    "ruff>=0.13.2",
+]

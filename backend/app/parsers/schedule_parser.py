@@ -1,23 +1,20 @@
 # Импорты необходимых библиотек
-from itertools import zip_longest
 from dataclasses import dataclass
+from itertools import zip_longest
 
-# Для создания асинхронных свойств
-from async_property import async_property
+import lxml
+
+# Импорт объекта для работы с таблицей расписания в БД
+from app.database import WeeklySchedule
+
+# Для парсинга HTML и работы с парсером lxml
+from bs4 import BeautifulSoup, ResultSet, Tag
 
 # Импорты библиотек selenium
 from selenium.webdriver import Remote
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
-
-# Для парсинга HTML и работы с парсером lxml
-from bs4 import BeautifulSoup, ResultSet, Tag
-import lxml
-
-# Импорт объекта для работы с таблицей расписания в БД
-from common.database import WeeklySchedule
 
 
 # Класс для обозначения отсутствия данных

@@ -1,18 +1,13 @@
-# Импорты пользовательских модулей
 import bot.keyboards.menu_kb as kb
-from bot.keyboards.pagination_kb import create_pagination_keyboard
-
-from config import load_config
-
-# Импорт инициализатора таблиц БД, словарь для хранения страниц и типы
+from aiogram import F, Router
+from aiogram.types import CallbackQuery, Message
 from bot.database import users_data
 from bot.filters import DisciplineFilter
-from bot.lexicon import LEXICON, LEXICON_COMMANDS, COMPONENTS, ATTESTATION
+from bot.keyboards.pagination_kb import create_pagination_keyboard
+from bot.lexicon import ATTESTATION, COMPONENTS, LEXICON, LEXICON_COMMANDS
 from bot.utils import make_discipline_rating_request
 
-# Импорты библиотек Aiogram
-from aiogram import F, Router
-from aiogram.types import Message, CallbackQuery
+from config import load_config
 
 # Инициализация роутера
 router: Router = Router()

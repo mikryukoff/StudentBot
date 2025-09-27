@@ -1,13 +1,11 @@
-import aiomysql
-from common.config import load_config, Config
 from typing import Union
 
+import aiomysql
+
+from config import load_config
 
 # Определяем конфиг
-config: Config = load_config()
-
-# Определяем словарь для работы с обектами каждого пользователя
-users_data: dict = {}
+config = load_config()
 
 
 class Table:
@@ -226,7 +224,6 @@ class Grades(Table):
                 """
                 await cursor.execute(select_grade)
                 rows = await cursor.fetchall()
-
                 name_discipline = rows[0][0]
                 component_score = [[row[1], row[2]] for row in rows]
 

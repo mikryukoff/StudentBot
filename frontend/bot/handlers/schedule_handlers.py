@@ -1,26 +1,18 @@
-# Импорты библиотек Aiogram
-from aiogram import F, Router
-from aiogram.types import Message, CallbackQuery
+from datetime import datetime, timedelta
 
-from environs import Env
-
-from datetime import timedelta, datetime
-
-from bot.utils import make_api_request, make_schedule_request
-
-# Импорты пользовательских модулей
+import bot.exceptions.api_exceptions as api_exc
 import bot.keyboards.menu_kb as kb
-from bot.keyboards.menu_kb import week_dates_keyboard
-from bot.keyboards.pagination_kb import create_pagination_keyboard
-
-from config import load_config
-
-# Импорт инициализатора таблиц БД, словарь для хранения страниц и типы
+from aiogram import F, Router
+from aiogram.types import CallbackQuery, Message
 from bot.database import users_data
 from bot.filters import DateFilter
+from bot.keyboards.menu_kb import week_dates_keyboard
+from bot.keyboards.pagination_kb import create_pagination_keyboard
 from bot.lexicon import LEXICON, LEXICON_COMMANDS
-import bot.exceptions.api_exceptions as api_exc
+from bot.utils import make_api_request, make_schedule_request
+from environs import Env
 
+from config import load_config
 
 # Создание экземпляра Router
 router: Router = Router()

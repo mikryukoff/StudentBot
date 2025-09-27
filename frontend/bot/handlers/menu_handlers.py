@@ -1,15 +1,9 @@
-# Импорты библиотек и модулей
-from aiogram import F, Router
-from aiogram.types import Message
-from aiogram.filters import CommandStart
-
-# Импорты пользовательских модулей
-from bot.lexicon import LEXICON, LEXICON_COMMANDS
-
 import bot.keyboards.menu_kb as kb
-
+from aiogram import F, Router
+from aiogram.filters import CommandStart
+from aiogram.types import Message
 from bot.database import users_data
-
+from bot.lexicon import LEXICON, LEXICON_COMMANDS
 
 # Инициализация роутера
 router: Router = Router()

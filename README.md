@@ -50,6 +50,7 @@ pip install -r requirements.txt
 BOT_TOKEN="4342342335:AAfwmfdlkIJLKSFjlkd_234adwalkWLKJ"                         # Токен телеграм-бота
 SELENOID_URL="http://localhost:4444/wd/hub"                                      # URL для подключения к Selenoid
 SECRET_KEY="ymkc933zy9wtafyy4e8gedf5c7hixawnivqhlo7d4iykfbf6rkip9l731zetq7o0"    # Секретный ключ для шифрования паролей (64 бит)
+API_URL="http://backend:8000"                                                    # URL для отправки запроса на API
 DB_HOST="host.docker.internal"                                                   # Хост БД 
 DB_USER="root"                                                                   # Имя администратора БД
 DB_PASSWORD=""                                                                   # Пароль от БД

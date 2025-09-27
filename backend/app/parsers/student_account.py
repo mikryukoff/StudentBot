@@ -1,27 +1,27 @@
 # Импорты из локальных модулей
-from common.config import load_config
-from schedule_parser import ScheduleParser
-from rating_parser import RatingParser
-
-# Импорт инициализатора таблиц БД, словарь для хранения страниц и типы
-from common.database import initialize_databases
-
 # Импорты стандартных библиотек
 from dataclasses import dataclass
 
-# Импорты из библиотеки Selenium
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.chrome.options import Options
+# Импорт инициализатора таблиц БД, словарь для хранения страниц и типы
+from app.database import initialize_databases
+
+# Импорты исключений из локальных и сторонних модулей
+from app.parsers.exceptions import AlreadyAuthorisedException, IncorrectDataException
+from app.parsers.rating_parser import RatingParser
+from app.parsers.schedule_parser import ScheduleParser
 
 # Импорт асинхронного свойства
 from async_property import async_property
 
-# Импорты исключений из локальных и сторонних модулей
-from .exceptions import IncorrectDataException, AlreadyAuthorisedException
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+# Импорты из библиотеки Selenium
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+from config import load_config
 
 
 @dataclass

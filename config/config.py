@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from fake_useragent import UserAgent
 
 from environs import Env
+from fake_useragent import UserAgent
 
 
 # Описание настроек подключения к БД

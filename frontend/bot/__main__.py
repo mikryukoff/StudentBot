@@ -1,18 +1,14 @@
-# Импорты локальных модулей
-from bot.handlers import (
-    auth_handlers,        # Хэндлеры для авторизации
-    rating_handlers,      # Хэндлеры для рейтинга
-    schedule_handlers,    # Хэндлеры для расписания
-    menu_handlers         # Хэндлеры для меню
-)
-
-# Импорты стандартных библиотек
 import asyncio
 import logging
 
-# Импорты из aiogram
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
+from bot.handlers import (
+    auth_handlers,  # Хэндлеры для авторизации
+    menu_handlers,  # Хэндлеры для меню
+    rating_handlers,  # Хэндлеры для рейтинга
+    schedule_handlers,  # Хэндлеры для расписания
+)
 
 # Импорты конфигурации
 from config import load_config
