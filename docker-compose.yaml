@@ -26,7 +26,7 @@ services:
     image: aerokube/selenoid:latest-release
     container_name: selenoid
     networks:
-      - app-network
+      app-network: null
     ports:
       - "4444:4444"
     environment:
@@ -37,23 +37,19 @@ services:
       - "./backend/app/parsers/selenoid/video:/opt/selenoid/video"
       - "./backend/app/parsers/selenoid/logs:/opt/selenoid/logs"
     command: ["-conf", "/etc/selenoid/browsers.json", "-limit", "20", "-retry-count", "1000", "-video-output-dir", "/opt/selenoid/video", "-log-output-dir", "/opt/selenoid/logs", "-max-timeout", "20m0s", "-session-attempt-timeout", "15m", "-timeout", "10m",  "-service-startup-timeout", "10m"]
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   selenoid-ui:
     image: aerokube/selenoid-ui:latest-release
     container_name: selenoid-ui
     networks:
-      - app-network
+      app-network: null
     ports:
       - "8080:8080"
     links:
       - selenoid
-    command: -selenoid-uri "http://host.docker.internal:4444"
+    command: ["-selenoid-uri", "http://selenoid:4444"]
     depends_on:
       - selenoid
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   adminer:
     image: adminer
@@ -116,4 +112,5 @@ volumes:
 
 networks:
   app-network:
-    driver: bridge
+    name: app-network
+    external: true

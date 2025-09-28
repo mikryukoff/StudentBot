@@ -24,7 +24,7 @@ from app.models import (
 )
 from app.parsers.exceptions import IncorrectDataException
 from app.parsers.student_account import StudentAccount
-from fastapi import FastAPI, status
+from fastapi import BackgroundTasks, FastAPI, status
 
 from config import load_config
 
@@ -67,6 +67,8 @@ async def update_table(user_id: int, table: str):
     elif table == "rating":
         await account.rating.full_disciplines_rating(key="update")
 
+    return account
+
 
 async def get_table(table_name: str | tuple) -> Union[Users, Grades, WeeklySchedule]:
     """
@@ -96,7 +98,7 @@ async def get_table(table_name: str | tuple) -> Union[Users, Grades, WeeklySched
         status.HTTP_422_UNPROCESSABLE_CONTENT: {"model": RequestValidationErrorModel}
     }
 )
-async def authorization(user: User):
+async def authorization(user: User, background_tasks: BackgroundTasks):
     users_table: User = await get_table("users")
     config = load_config()
     cipher: PassCipher = PassCipher(config.user_data.secret_key)
@@ -109,6 +111,8 @@ async def authorization(user: User):
         ).driver
 
     except IncorrectDataException:
+        account.browser.close()
+        account.browser.quit()
         raise InvalidCredentialsException()
 
     # Получаем текущую дату
@@ -128,6 +132,9 @@ async def authorization(user: User):
     # Записываем все данные пользователя в БД
     await account.schedule.week_schedule(key="insert")
     await account.rating.full_disciplines_rating(key="insert")
+
+    background_tasks.add_task(account.browser.close())
+    background_tasks.add_task(account.browser.quit())
 
 
 @app.get(
@@ -202,8 +209,10 @@ async def get_discipline_rating(user_id: int, discipline: str):
         status.HTTP_422_UNPROCESSABLE_CONTENT: {"model": RequestValidationErrorModel}
     }
 )
-async def update_discipline_rating(user_id: int):
-    await update_table(user_id, table="rating")
+async def update_discipline_rating(user_id: int, background_tasks: BackgroundTasks):
+    account = await update_table(user_id, table="rating")
+    background_tasks.add_task(account.browser.close())
+    background_tasks.add_task(account.browser.quit())
 
 #----------------------------------------------------------------------------------------#
 
@@ -232,7 +241,9 @@ async def get_day_schedule(user_id: int, day: int):
         status.HTTP_422_UNPROCESSABLE_CONTENT: {"model": RequestValidationErrorModel}
     }
 )
-async def update_week_schedule(user_id: int):
-    await update_table(user_id, table="schedule")
+async def update_week_schedule(user_id: int, background_tasks: BackgroundTasks):
+    account = await update_table(user_id, table="schedule")
+    background_tasks.add_task(account.browser.close())
+    background_tasks.add_task(account.browser.quit())
 
 #----------------------------------------------------------------------------------------#

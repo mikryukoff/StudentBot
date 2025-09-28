@@ -121,7 +121,7 @@ async def make_schedule_request(
         data = await make_api_request(
             request_url,
             method=method,
-            params=params,  # Передаем query-параметры
+            params=params,
             data=data,
             content_type=content_type,
             headers=headers
