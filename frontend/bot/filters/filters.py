@@ -5,7 +5,7 @@ from aiogram.types import Message
 # Кастомный фильтр для проверки даты
 class DateFilter(BaseFilter):
     def __init__(self):
-        self.dates = ["Пн.", "Вт.", "Ср.", "Чт.", "Пт.", "Cб."]
+        self.dates = ["Пн.", "Вт.", "Ср.", "Чт.", "Пт.", "Сб.", "Вс."]
 
     # Асинхронный метод вызова фильтра
     async def __call__(self, message: Message) -> bool:

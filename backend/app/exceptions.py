@@ -27,8 +27,9 @@ class AuthException(HTTPException):
 
 class InvalidCredentialsException(AuthException):
     """Неверные учетные данные"""
-    def __init__(self, detail: str = "Invalid email or password"):
-        super().__init__(detail=detail)
+    def __init__(self, detail: str = "Invalid email or password", **kwargs: Any):
+        kwargs["detail"] = detail
+        super().__init__(**kwargs)
 
 #-----------------------------------------------------------------------------------------#
 

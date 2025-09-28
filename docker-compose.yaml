@@ -36,7 +36,18 @@ services:
       - "./backend/app/parsers/selenoid/config:/etc/selenoid"
       - "./backend/app/parsers/selenoid/video:/opt/selenoid/video"
       - "./backend/app/parsers/selenoid/logs:/opt/selenoid/logs"
-    command: ["-conf", "/etc/selenoid/browsers.json", "-limit", "20", "-retry-count", "1000", "-video-output-dir", "/opt/selenoid/video", "-log-output-dir", "/opt/selenoid/logs", "-max-timeout", "20m0s", "-session-attempt-timeout", "15m", "-timeout", "10m",  "-service-startup-timeout", "10m"]
+    command: [
+      "-conf", "/etc/selenoid/browsers.json",
+      "-limit", "20",
+      "-retry-count", "1000",
+      "-video-output-dir", "/opt/selenoid/video",
+      "-log-output-dir", "/opt/selenoid/logs",
+      "-max-timeout", "20m0s",
+      "-session-attempt-timeout", "15m",
+      "-timeout", "10m",
+      "-service-startup-timeout", "10m",
+      "-container-network", "app-network"
+    ]
 
   selenoid-ui:
     image: aerokube/selenoid-ui:latest-release

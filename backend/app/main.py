@@ -102,6 +102,7 @@ async def authorization(user: User, background_tasks: BackgroundTasks):
     users_table: User = await get_table("users")
     config = load_config()
     cipher: PassCipher = PassCipher(config.user_data.secret_key)
+    account: StudentAccount = None
 
     try:
         account: StudentAccount = await StudentAccount(
@@ -111,8 +112,6 @@ async def authorization(user: User, background_tasks: BackgroundTasks):
         ).driver
 
     except IncorrectDataException:
-        account.browser.close()
-        account.browser.quit()
         raise InvalidCredentialsException()
 
     # Получаем текущую дату
@@ -133,8 +132,8 @@ async def authorization(user: User, background_tasks: BackgroundTasks):
     await account.schedule.week_schedule(key="insert")
     await account.rating.full_disciplines_rating(key="insert")
 
-    background_tasks.add_task(account.browser.close())
-    background_tasks.add_task(account.browser.quit())
+    background_tasks.add_task(account.browser.close)
+    background_tasks.add_task(account.browser.quit)
 
 
 @app.get(
@@ -211,8 +210,8 @@ async def get_discipline_rating(user_id: int, discipline: str):
 )
 async def update_discipline_rating(user_id: int, background_tasks: BackgroundTasks):
     account = await update_table(user_id, table="rating")
-    background_tasks.add_task(account.browser.close())
-    background_tasks.add_task(account.browser.quit())
+    background_tasks.add_task(account.browser.close)
+    background_tasks.add_task(account.browser.quit)
 
 #----------------------------------------------------------------------------------------#
 
@@ -243,7 +242,7 @@ async def get_day_schedule(user_id: int, day: int):
 )
 async def update_week_schedule(user_id: int, background_tasks: BackgroundTasks):
     account = await update_table(user_id, table="schedule")
-    background_tasks.add_task(account.browser.close())
-    background_tasks.add_task(account.browser.quit())
+    background_tasks.add_task(account.browser.close)
+    background_tasks.add_task(account.browser.quit)
 
 #----------------------------------------------------------------------------------------#

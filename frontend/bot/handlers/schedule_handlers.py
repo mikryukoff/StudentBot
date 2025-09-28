@@ -52,7 +52,11 @@ async def schedule_menu(message: Message):
         else:
             start_date = user_data["week_start_date"]
 
-        week_days = [(start_date + timedelta(days=i)).strftime("%a. - %d.%m") for i in range(7)]
+        RUS_WEEKDAYS = {0: "Пн", 1: "Вт", 2: "Ср", 3: "Чт", 4: "Пт", 5: "Сб", 6: "Вс"}
+        week_days = [
+            f"{RUS_WEEKDAYS[(start_date + timedelta(days=i)).weekday()]}. - {(start_date + timedelta(days=i)).strftime('%d.%m')}" 
+            for i in range(7)
+        ]
 
     # Отправляем пользователю меню с кнопками для работы с расписанием
     await message.answer(
